@@ -5,7 +5,7 @@ import {
   } from "@medusajs/framework/http"
     import { z } from "zod"
     import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-  import { PostAdminCreateAuthor } from "./admin/authors/validators"
+  import { PostAdminCreateAuthor,linkAuthor } from "./admin/authors/validators"
 
 
   export const GetAuthorSchema = createFindParams()
@@ -17,6 +17,13 @@ import {
         method: "POST",
         middlewares: [
           validateAndTransformBody(PostAdminCreateAuthor),
+        ],
+      },
+      {
+        matcher: "/admin/authors/link",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(linkAuthor),
         ],
       },
       {

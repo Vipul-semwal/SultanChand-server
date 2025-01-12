@@ -3,7 +3,7 @@ import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { sdk } from "../../lib/sdk";
-import { Heading, Button, Label, Input } from "@medusajs/ui";
+import { Heading, Button, Label, Input,toast,Textarea } from "@medusajs/ui";
 
 const schema = z.object({
   name: z.string(),
@@ -48,13 +48,20 @@ export const CreateForm = () => {
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authors"] });
+      queryClient.invalidateQueries({ queryKey: ["authors","authors-select"] });
       form.reset();
       setSelectedImage(null);
       setImagePreview(null);
+      toast.info("Info", {
+        description: "author added",
+      })
+
     },
     onError: (error) => {
       console.error("Error creating author:", error);
+      toast.error("Info", {
+        description: "something went wrong",
+      })
     },
   });
 
@@ -99,7 +106,7 @@ export const CreateForm = () => {
     <>
       <Heading className="mb-4">Create Author</Heading>
       <FormProvider {...form}>
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 h-ful">
           <div className="flex flex-col gap-y-6">
             {/* Name Field */}
             <Controller
@@ -124,7 +131,7 @@ export const CreateForm = () => {
                   <Label size="small" weight="plus">
                     Description
                   </Label>
-                  <Input {...field} />
+                  <Textarea {...field} className="resize-both" />
                 </div>
               )}
             />

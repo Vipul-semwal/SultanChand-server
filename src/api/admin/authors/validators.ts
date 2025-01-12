@@ -6,3 +6,8 @@ export const PostAdminCreateAuthor = z.object({
   image: z.string(),
   subText: z.string(),
 })
+
+export const linkAuthor = z.object({
+  author_id: z.string(),
+  product_id: z.string(),
+})

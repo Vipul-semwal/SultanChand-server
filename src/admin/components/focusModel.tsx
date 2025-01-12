@@ -22,7 +22,7 @@ export default function FocusModalWrapper({ Child, saveButtonName, saveButtonOnC
         <FocusModal.Header>
           <Button onClick={() => saveButtonOnClick()}>{saveButtonName}</Button>
         </FocusModal.Header>
-        <FocusModal.Body className="flex flex-col items-center py-16">
+        <FocusModal.Body className="flex flex-col items-center py-16 h-full overflow-auto">
             {Child?Child:<Text>Child is not defined</Text>}
         </FocusModal.Body>
       </FocusModal.Content>

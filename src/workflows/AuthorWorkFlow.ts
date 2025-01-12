@@ -3,7 +3,7 @@ import {
     createWorkflow,
     WorkflowResponse,
   } from "@medusajs/framework/workflows-sdk"
-  import { createAuthorStep,CreateAuthorStepInput } from "./create-author";
+  import { createAuthorStep,CreateAuthorStepInput,linkAuthorToBookStep,linkAuthorInput } from "./create-author";
  
   
 
@@ -14,5 +14,15 @@ import {
       const Author = createAuthorStep(input)
   
       return new WorkflowResponse(Author)
+    }
+  )
+
+    
+  export const linkBookToAuthorWorkflow = createWorkflow(
+    "link-book-to-author",
+    (input: linkAuthorInput) => {
+      const linkAuthored = linkAuthorToBookStep(input)
+  
+      return new WorkflowResponse(linkAuthored)
     }
   )
