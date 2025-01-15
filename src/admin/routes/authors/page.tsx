@@ -24,7 +24,7 @@ type AuthorsResponse = {
 }
 
 const AuthorPage = () => {
-  // TODO retrieve brands
+  
   const [currentPage, setCurrentPage] = useState(0)
 const limit = 15
 const offset = useMemo(() => {

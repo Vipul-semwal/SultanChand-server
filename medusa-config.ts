@@ -17,6 +17,12 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/author",
     },
+    {
+       resolve:'./src/modules/reviews'
+    },
+    {
+      resolve:'./src/modules/productPdf'
+   }
   ],
 
 })

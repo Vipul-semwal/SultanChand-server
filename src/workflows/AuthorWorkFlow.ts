@@ -21,6 +21,7 @@ import {
   export const linkBookToAuthorWorkflow = createWorkflow(
     "link-book-to-author",
     (input: linkAuthorInput) => {
+      console.log('input',input)
       const linkAuthored = linkAuthorToBookStep(input)
   
       return new WorkflowResponse(linkAuthored)

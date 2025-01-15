@@ -53,6 +53,30 @@ import {
           ),
         ],
       },
+      {
+        matcher: "/store/authors",
+        method: "GET",
+        middlewares: [
+          validateAndTransformQuery(
+            GetAuthorSchema,
+            {
+              defaults: [
+                "id",
+                "name",
+                "description",
+                "image",
+                "subText",
+                "products.*",
+              ],
+              isList: true,
+            }
+          ),
+          (req,res,next)=>{
+            console.log('middleware',req.remoteQueryConfig)
+            next()
+          }
+        ],
+      },
   
     ],
   })
