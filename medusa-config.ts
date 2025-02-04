@@ -21,8 +21,8 @@ module.exports = defineConfig({
        resolve:'./src/modules/reviews'
     },
     {
-      resolve:'./src/modules/productPdf'
-   }
+      resolve: "./src/modules/extraPdfLink",
+   },
   ],
 
 })

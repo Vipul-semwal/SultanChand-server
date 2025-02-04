@@ -8,6 +8,8 @@ import {
   import {z} from "zod"
   import { PostAdminCreateAuthor } from "./validators"
 import author from "src/modules/author"
+import { UpdateAuthorWorkflow } from "src/workflows/AuthorWorkFlow";
+import { updateAuthorStepType } from "src/workflows/create-author";
   
   type PostAdminCreateAuthorType = z.infer<typeof PostAdminCreateAuthor>
   
@@ -16,10 +18,16 @@ import author from "src/modules/author"
     res: MedusaResponse
   ) => {
     console.log('reqqqq',req.validatedBody)
-    const { result } = await createAuthorWorkflow(req.scope)
+    const { result,errors } = await createAuthorWorkflow(req.scope)
       .run({
         input: req.validatedBody,
-      })
+        throwOnError:false
+      },)
+      if(errors.length){
+        return res.json({
+          errors: errors.map((error) => error.error),
+        }).status(500)
+      }
   
     res.json({ author: result })
   };
@@ -45,3 +53,33 @@ import author from "src/modules/author"
       })
     
   };
+
+   export async function PUT(
+      req: MedusaRequest,
+      res: MedusaResponse
+    ) {
+      try {
+        console.log('reqqqqupdated',req.validatedBody)
+           const { result,errors  } = await   UpdateAuthorWorkflow (req.scope)
+           .run({
+             input: req.validatedBody as updateAuthorStepType,
+             throwOnError:false
+           })
+       
+           if (errors.length) {
+             console.log('error',errors)
+             return res.json({
+               errors: errors.map((error) => error.error),
+             }).status(500)
+         }
+         
+         res.json({ data: result })
+    
+      } catch (error) {
+        console.error("Error updating author:", error);
+        res.status(500).json({
+          message: "Failed to updated data",
+          error: error.message,
+        });
+      }
+    };

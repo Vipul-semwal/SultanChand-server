@@ -9,6 +9,8 @@ import { ActionMenu } from "../../components/action-menu"
 import { Plus,Pencil,Trash} from "@medusajs/icons"
 import FocusModalWrapper from "../../components/focusModel"
 import {CreateForm} from "../../components/author/create-form"
+import { ActionPrompt } from "../../components/prompt"
+import { ConstraintViolationException } from "@mikro-orm/core"
 
 type AuthorsResponse = {
   author: {
@@ -25,13 +27,13 @@ type AuthorsResponse = {
 
 const AuthorPage = () => {
   
-  const [currentPage, setCurrentPage] = useState(0)
+const [currentPage, setCurrentPage] = useState(0)
 const limit = 15
 const offset = useMemo(() => {
   return currentPage * limit
 }, [currentPage])
 
-const { data } = useQuery<AuthorsResponse>({
+const { data,refetch } = useQuery<AuthorsResponse>({
   queryFn: () => sdk.client.fetch(`/admin/authors`, {
     query: {
       limit,
@@ -40,18 +42,76 @@ const { data } = useQuery<AuthorsResponse>({
   }),
   queryKey: [["authors", limit, offset]],
 })
+
+const handleEdit = (authorId: string) => {
+  const authorToEdit = data?.author.find((author) => author.id === authorId);
+  if (!authorToEdit) return;
+
+  setFocusModalState({
+    ...focusModalState,
+    Child: (
+      <CreateForm
+        edit={true}
+        author={authorToEdit}
+        CallBack={() => {
+          refetch();
+          focusModalState.setOpen(false);
+        }}
+      />
+    ),
+    saveButtonOnClick: () => alert("save"),
+    open: true,
+  });
+};
+
 // Focus Model open state
-const [open, setOpen] = useState(false)
-const foucsModelObj = {
-  Child:  <CreateForm />,
-   saveButtonName:"save", saveButtonOnClick:()=>{
-    alert("save")
-  }, open, setOpen
+
+const [focusModalState, setFocusModalState] = useState({
+  Child: null as React.ReactNode,
+  saveButtonName: "Save",
+  saveButtonOnClick: () => {},
+  open: false,
+  setOpen: (val: boolean) => setFocusModalState((prev) => ({ ...prev, open: val })),
+});
+
+// Delete Author
+const [isDeletePromptOpen, setDeletePromptOpen] = useState(false);
+const [authorToDelete, setAuthorToDelete] = useState<string | null>(null);
+const deleteAuthor = async (authorId: string) => {
+  try {
+   const res =  await sdk.client.fetch<Promise<{message:string}>>(`/admin/authors/${authorId}`, { method: "DELETE" });
+   return {...res,status:200}
+    
+  } catch (error) {
+    console.error(error);
+    return {status:500,message:'something went wrong'}
+  }
+};
+const onsuccess = ()=>{
+  refetch();
+  setDeletePromptOpen(false);
+  setAuthorToDelete(null);
 }
+const handleDelete = (authorId: string) => {
+  setAuthorToDelete(authorId); // Set the author ID to be deleted
+  setDeletePromptOpen(true); // Open the delete confirmation prompt
+};
 
   return (
     <Container className="divide-y p-0">
-      <FocusModalWrapper {...foucsModelObj}/>
+      <ActionPrompt 
+        open={isDeletePromptOpen}
+        onOpenChange={setDeletePromptOpen}
+        title="Delete Author"
+        description="Are you sure you want to delete this author? This action cannot be undone."
+        mutationKey="delete-author"
+        mutationFn={deleteAuthor} 
+        mutationArgs={authorToDelete}
+        actionLabel="Delete"
+        onsuccess={onsuccess}
+        queryKey={["authors", limit, offset]}
+      />
+      <FocusModalWrapper {...focusModalState}/>
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <Heading level="h2">Authors</Heading>
@@ -64,8 +124,15 @@ const foucsModelObj = {
               icon: <Plus />,
               label: "create",
               onClick: () => {
-                foucsModelObj.Child =  <CreateForm />
-                setOpen(true)
+                setFocusModalState({
+                  ...focusModalState,
+                  Child: <CreateForm CallBack={() => {
+                    refetch();
+                    focusModalState.setOpen(false);
+                  }} />,
+                  saveButtonOnClick: () => alert("save"),
+                  open: true,
+                });
               },
             },
           ],
@@ -101,9 +168,10 @@ const foucsModelObj = {
       }
     },
     {
-      key: "actions",
+      key: "id",
       label: "Actions",
       render: (value:unknown) => {
+        console.log('atakaatkakaka:',value)
         return (
           <ActionMenu
             groups={[
@@ -113,14 +181,14 @@ const foucsModelObj = {
                     icon: <Pencil />,
                     label: "Edit",
                     onClick: () => {
-                      setOpen(true)
+                      handleEdit(value as string)
                     },
                   },
                   {
                     icon: <Trash />,
                     label: "Delete",
                     onClick: () => {
-                      alert("You clicked the edit action!")
+                      handleDelete(value as string)
                     },
                   },
                 ],

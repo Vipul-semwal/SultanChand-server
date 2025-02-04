@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+"use client"
+
+import React, { useState, useEffect } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { sdk } from "../../lib/sdk";
-import { Heading, Button, Label, Input, toast, Textarea } from "@medusajs/ui";
+import { Heading, Button, Label, Input, toast } from "@medusajs/ui";
 
 const schema = z.object({
   amazoneLink: z.string().url().optional(),
@@ -11,21 +13,48 @@ const schema = z.object({
   previewPdf: z.string().url().optional(),
   questionBankPdf: z.string().url().optional(),
   anypdf: z.record(z.string().url()).optional(),
+  product_id:z.string()
 });
 
-export const PdfForm = () => {
+type PdfFormProps = {
+  product_id: string;
+  initialData?: z.infer<typeof schema>; // Pre-filled data for update
+  isEditMode?: boolean; // Indicates if the form is in edit mode
+};
+
+const PdfForm = ({ product_id, initialData, isEditMode = false }: PdfFormProps) => {
+  // console.log('form', initialData, isEditMode);
+
   const form = useForm<z.infer<typeof schema>>({
-    defaultValues: {
+    defaultValues: initialData ? { ...initialData} : {
       amazoneLink: "",
       youtubeLink: "",
       previewPdf: "",
       questionBankPdf: "",
       anypdf: {},
+      product_id: product_id
     },
   });
 
-  const [extraPdfs, setExtraPdfs] = useState<{ label: string; file: File | null; url: string | null }[]>([]);
-  
+  useEffect(() => {
+    if (initialData) {
+      const turend =  Object.entries(initialData?.anypdf || {}).map(([label, url]) => ({
+        label,
+        file: null,
+        url,
+      }));
+    setExtraPdfs(turend);
+      form.reset(initialData);
+    }
+  }, [initialData]);
+
+  const [extraPdfs, setExtraPdfs] = useState<{ label: string; file: File | null; url: string | null }[]>(
+    Object.entries(initialData?.anypdf || {}).map(([label, url]) => ({
+      label,
+      file: null,
+      url,
+    }))
+  );
   const uploadFile = async (file: File) => {
     try {
       const response = await sdk.admin.upload.create({ files: [file] });
@@ -38,25 +67,34 @@ export const PdfForm = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof schema>) => {
-      const response = await sdk.client.fetch("/admin/pdfs", {
-        method: "POST",
-        body: JSON.stringify(data),
+      const url = isEditMode ? `/admin/extralinks` : "/admin/extralinks";
+      const method = isEditMode ? "PUT" : "POST";
+     
+      const response: any = await sdk.client.fetch(url, {
+        method,
+        body: data,
         headers: {
           "Content-Type": "application/json",
         },
       });
+
+      if (response.errors) {
+        throw new Error("Something went wrong");
+      }
+       
       return response;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log("Response from backend:", data);
       form.reset();
       setExtraPdfs([]);
       toast.info("Info", {
-        description: "PDF data saved successfully!",
+        description: isEditMode ? "PDF data updated successfully!" : "PDF data saved successfully!",
       });
     },
     onError: () => {
       toast.error("Error", {
-        description: "Failed to save PDF data.",
+        description: isEditMode ? "Failed to update PDF data." : "Failed to save PDF data.",
       });
     },
   });
@@ -73,7 +111,7 @@ export const PdfForm = () => {
         const url = await uploadFile(pdf.file);
         return { label: pdf.label, url };
       }
-      return null;
+      return pdf.url ? { label: pdf.label, url: pdf.url } : null;
     });
 
     const uploadedPdfs = await Promise.all(pdfsToUpload);
@@ -86,11 +124,8 @@ export const PdfForm = () => {
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      // Upload extra PDFs
       const anyPdf = await handleExtraPdfUpload();
-
-      // Submit form with `anypdf` data
-      mutation.mutate({ ...values, anypdf: anyPdf });
+      mutation.mutate({ ...values, anypdf: anyPdf,});
     } catch (error) {
       console.error("Error saving PDF data:", error);
     }
@@ -98,10 +133,10 @@ export const PdfForm = () => {
 
   return (
     <>
-      <Heading className="mb-4">Create PDF Records</Heading>
+      <Heading className="mb-4">{isEditMode ? "Update PDF Records" : "Create PDF Records"}</Heading>
       <FormProvider {...form}>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Amazone Link */}
+          {/* Amazon Link */}
           <Controller
             control={form.control}
             name="amazoneLink"
@@ -132,7 +167,14 @@ export const PdfForm = () => {
           {/* Preview PDF */}
           <div className="flex flex-col space-y-2">
             <Label size="small" weight="plus">
-              Preview PDF
+              {form.getValues("previewPdf") ? (<a
+                href={form.getValues("previewPdf") || ""}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                View Current Preview PDF
+              </a>) : " Preview PDF"}
             </Label>
             <Input
               type="file"
@@ -150,7 +192,14 @@ export const PdfForm = () => {
           {/* Question Bank PDF */}
           <div className="flex flex-col space-y-2">
             <Label size="small" weight="plus">
-              Question Bank PDF
+              {form.getValues("questionBankPdf") ? (<a
+                href={form.getValues("questionBankPdf") || ""}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                View Current Question Bank PDF
+              </a>) : "Question Bank PDF"}
             </Label>
             <Input
               type="file"
@@ -172,6 +221,7 @@ export const PdfForm = () => {
             </Label>
             {extraPdfs.map((pdf, index) => (
               <div key={index} className="flex items-center gap-2">
+                {/* Input for Label */}
                 <Input
                   placeholder="Label"
                   value={pdf.label}
@@ -179,21 +229,39 @@ export const PdfForm = () => {
                     handleExtraPdfChange(index, e.target.value, pdf.file)
                   }
                 />
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) =>
-                    handleExtraPdfChange(index, pdf.label, e.target.files?.[0] || null)
-                  }
-                />
+
+                {/* File Upload and URL */}
+                <div className="flex flex-col">
+                  {/* View PDF Link */}
+                  {pdf.url && !pdf.file && (
+                    <a
+                      href={pdf.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      View PDF
+                    </a>
+                  )}
+
+                  {/* File Input */}
+                  <Input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) =>
+                      handleExtraPdfChange(index, pdf.label, e.target.files?.[0] || null)
+                    }
+                  />
+                </div>
               </div>
             ))}
             <Button
               size="small"
               variant="secondary"
-              onClick={() =>
-                setExtraPdfs([...extraPdfs, { label: "", file: null, url: null }])
-              }
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                e.preventDefault();
+                setExtraPdfs([...extraPdfs, { label: "", file: null, url: null }]);
+              }}
             >
               Add Extra PDF
             </Button>
@@ -213,7 +281,7 @@ export const PdfForm = () => {
               Cancel
             </Button>
             <Button type="submit" size="small" disabled={mutation.isPending}>
-              {mutation.isPending ? "Saving..." : "Save"}
+              {mutation.isPending ? "Saving..." : isEditMode ? "Update" : "Save"}
             </Button>
           </div>
         </form>
@@ -223,3 +291,7 @@ export const PdfForm = () => {
 };
 
 export default PdfForm;
+
+
+
+

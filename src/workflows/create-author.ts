@@ -9,11 +9,19 @@ import {
 
   export type CreateAuthorStepInput = {
     name: string
-  }
+  };
 
   export type linkAuthorInput = {
     author_id: string
     product_id: string
+  };
+
+  export type updateAuthorStepType = {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    subText: string;
   }
 
   type AuthorLinkRecord =  {
@@ -63,10 +71,27 @@ import {
         fields: [
           "author.*",
         ],
+        filters: { id: [input.product_id] },
       })
 
+      console.log('lareadyy',data);
      // loop over every query then remove the author id
       const author = data[0]?.author as unknown as AuthorLinkRecord[]
+      console.log('athorr',author)
+
+      // it means ther is only sinlge author
+      if(!Array.isArray(author)){
+        const authorId = data[0]?.author as unknown as AuthorLinkRecord
+        const res =   await  remoteLink.dismiss({
+          [Modules.PRODUCT]: {
+            product_id: input.product_id,
+          },
+          [Author_MODULE]: {
+            author_id: authorId.id,
+          },
+        });
+        console.log('inside the author object babay',res)
+      }
       if(author.length>0){
         for(let i=0;i<author.length;i++){
         const res =   await  remoteLink.dismiss({
@@ -91,12 +116,27 @@ import {
         },
       }
 
-      await remoteLink.create(link);
+     const linked = await remoteLink.create(link);
+     console.log('linked',linked)
 
       return new StepResponse(link, link)
     }
   );
+
+
+  export const UpdateAuthorStep = createStep(
+    "update-author-step",
+    async(input:updateAuthorStepType,{container})=>{
+      const authorModuleService: AuthorModuleService = container.resolve(
+        Author_MODULE
+      );
+
+      const author = await authorModuleService.updateAuthors(input);
+      console.log('authorupdated',author);
+      return new StepResponse(author, author);
+    }
+  )
   
-  const added = "test"
+
 
 

@@ -7,4 +7,4 @@ class AuthorModuleService extends MedusaService({
 
 }
 
-export default AuthorModuleService
+export default AuthorModuleService;

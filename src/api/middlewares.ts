@@ -5,7 +5,9 @@ import {
   } from "@medusajs/framework/http"
     import { z } from "zod"
     import { createFindParams } from "@medusajs/medusa/api/utils/validators"
-  import { PostAdminCreateAuthor,linkAuthor } from "./admin/authors/validators"
+  import { PostAdminCreateAuthor,linkAuthor,PostAdminUpdateAuthor } from "./admin/authors/validators"
+  import {ProductPdfSchema,getLInksofProduct} from "./admin/extralinks/validators"
+  import { reviewSchema } from "./store/validator"
 
 
   export const GetAuthorSchema = createFindParams()
@@ -17,6 +19,13 @@ import {
         method: "POST",
         middlewares: [
           validateAndTransformBody(PostAdminCreateAuthor),
+        ],
+      },
+      {
+        matcher: "/admin/authors",
+        method: "PUT",
+        middlewares: [
+          validateAndTransformBody(PostAdminUpdateAuthor),
         ],
       },
       {
@@ -77,6 +86,48 @@ import {
           }
         ],
       },
-  
+      {
+        matcher: "/admin/extralinks",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(ProductPdfSchema),
+        ],
+      },
+      {
+        matcher: "/admin/extralinks",
+        method: "PUT",
+        middlewares: [
+          validateAndTransformBody(ProductPdfSchema),
+        ],
+      },
+      {
+        matcher: "/store/review",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(reviewSchema),
+        ],
+      },
+      // {
+      //   matcher: "/store/review",
+      //   method: "GET",
+      //   middlewares: [
+      //     validateAndTransformQuery(
+      //       GetAuthorSchema,
+      //       {
+      //         defaults: [
+      //           "id",
+      //           "name",
+      //           "email",
+      //           "comment",
+      //           "email",
+      //           "created_at",
+      //           "rating"
+
+      //         ],
+      //         isList: true,
+      //       }
+      //     ),
+      //   ],
+      // },
     ],
   })

@@ -3,7 +3,9 @@ import {
     createWorkflow,
     WorkflowResponse,
   } from "@medusajs/framework/workflows-sdk"
-  import { createAuthorStep,CreateAuthorStepInput,linkAuthorToBookStep,linkAuthorInput } from "./create-author";
+  import { createAuthorStep,CreateAuthorStepInput,linkAuthorToBookStep,linkAuthorInput,
+    updateAuthorStepType,UpdateAuthorStep
+   } from "./create-author";
  
   
 
@@ -21,9 +23,19 @@ import {
   export const linkBookToAuthorWorkflow = createWorkflow(
     "link-book-to-author",
     (input: linkAuthorInput) => {
-      console.log('input',input)
+      console.log('inputhjshdfj',input)
       const linkAuthored = linkAuthorToBookStep(input)
   
       return new WorkflowResponse(linkAuthored)
+    }
+  );
+
+
+  export const UpdateAuthorWorkflow = createWorkflow(
+    "update-author",
+    (input: updateAuthorStepType) => {
+      console.log('in the updateworkflwo:',input);
+      const updatedAuthor = UpdateAuthorStep(input)
+      return new WorkflowResponse(updatedAuthor);
     }
   )

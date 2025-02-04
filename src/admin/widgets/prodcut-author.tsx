@@ -1,7 +1,7 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { DetailWidgetProps, AdminProduct } from "@medusajs/framework/types"
 import { clx, Container, Heading, Text,Select,toast } from "@medusajs/ui"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery,useQueryClient } from "@tanstack/react-query"
 import { useMutation} from "@tanstack/react-query";
 import { sdk } from "../lib/sdk"
 import {useCustomSelect} from "../hooks/useCustomSelect"
@@ -37,17 +37,16 @@ export const Schema = z.object({
 const ProductAuthorWidget = ({ 
   data: product,
 }: DetailWidgetProps<AdminProduct>) => {
-  const { data: queryResult } = useQuery({
+ const { data: queryResult, } = useQuery({
     queryFn: () => sdk.admin.product.retrieve(product.id, {
       fields: "+author.*",
     }),
     queryKey: [["product", product.id]],
   })
 
-  console.log('prodcut',product)
-
+  console.log('query',queryResult)
   // author to select from 
-  const { data,isLoading:loading,isError } = useQuery<AuthorsResponse>({
+  const { data,isLoading:loading,isError,refetch } = useQuery<AuthorsResponse>({
     queryFn: () => sdk.client.fetch(`/admin/authors`, {
       query: {
         limit:1000
@@ -66,24 +65,32 @@ const ProductAuthorWidget = ({
       label: item.name}
   });
   // Safely extract the author's name
-  const authorName = (queryResult?.product as AdminProductAuthor)?.author?.name
+  const authorName = (queryResult?.product as AdminProductAuthor)?.author?.name;
+
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof Schema>) => {
       console.log('ara',data)
-      const response = await sdk.client.fetch("/admin/authors/link", {
+      const response:any = await sdk.client.fetch("/admin/authors/link", {
         method: "POST",
         body: data,
         headers: {
           "Content-Type": "application/json",
         },
       });
+      if (response.errors) {
+        throw new Error("Something went wrong");
+      }
+       
       return response;
     },
     onSuccess: () => {
 
       toast.info("Info", {
         description: "author added",
-      })
+      });
+      queryClient.invalidateQueries({ queryKey: ["authors-select"] });
+      refetch()
 
     },
     onError: (error) => {
@@ -94,7 +101,7 @@ const ProductAuthorWidget = ({
     },
   });
 
-  console .log('authorOptions',authorOptions)
+  // console .log('authorOptions',authorOptions)
   const {selectedValue,handleValueChange,options} = useCustomSelect(authorOptions || [{value:"null",label:"null"}],product.id,mutation.mutate)   
    
   
