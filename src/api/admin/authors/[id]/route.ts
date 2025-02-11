@@ -11,7 +11,7 @@ import {
     req: MedusaRequest,
     res: MedusaResponse
   ): Promise<void> {
-    console.log('ahay in the delete function',req.params.id);
+    console.log('ahay in the delete function',req.params.id);       
     try {
       const authorService: AuthorModuleService = req.scope.resolve(Author_MODULE);
       const link = req.scope.resolve(ContainerRegistrationKeys.REMOTE_LINK);

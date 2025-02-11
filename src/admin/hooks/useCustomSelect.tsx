@@ -1,4 +1,3 @@
-import { on } from "events"
 import { useState, useCallback } from "react"
 
 export type SelectOption = {

@@ -23,6 +23,12 @@ module.exports = defineConfig({
     {
       resolve: "./src/modules/extraPdfLink",
    },
+   {
+    resolve: "./src/modules/publishWithUs",
+ },
+ {
+  resolve: "./src/modules/content",
+},
   ],
 
 })

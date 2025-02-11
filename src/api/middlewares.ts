@@ -7,7 +7,12 @@ import {
     import { createFindParams } from "@medusajs/medusa/api/utils/validators"
   import { PostAdminCreateAuthor,linkAuthor,PostAdminUpdateAuthor } from "./admin/authors/validators"
   import {ProductPdfSchema,getLInksofProduct} from "./admin/extralinks/validators"
+  import { contentSchema,UpdatecontentSchema } from "./admin/book-content/validator"
   import { reviewSchema } from "./store/validator"
+  import multer from "multer";
+  const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
 
 
   export const GetAuthorSchema = createFindParams()
@@ -107,27 +112,23 @@ import {
           validateAndTransformBody(reviewSchema),
         ],
       },
-      // {
-      //   matcher: "/store/review",
-      //   method: "GET",
-      //   middlewares: [
-      //     validateAndTransformQuery(
-      //       GetAuthorSchema,
-      //       {
-      //         defaults: [
-      //           "id",
-      //           "name",
-      //           "email",
-      //           "comment",
-      //           "email",
-      //           "created_at",
-      //           "rating"
-
-      //         ],
-      //         isList: true,
-      //       }
-      //     ),
-      //   ],
-      // },
+      {
+        matcher: "/store/upload",
+        middlewares: [upload.single("file")],
+      },
+      {
+        matcher: "/admin/book-content",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(contentSchema),
+        ],
+      },
+      {
+        matcher: "/admin/book-content",
+        method: "PUT",
+        middlewares: [
+          validateAndTransformBody(UpdatecontentSchema),
+        ],
+      },
     ],
   })

@@ -45,7 +45,7 @@ const ProductPdfWidget = ({
   const pdfData = res as unknown as  productType
 
   
-console.table(pdfData?.product.extra_link)
+// console.table(pdfData?.product.extra_link)
 const initialData = pdfData?.product.extra_link
     ? {
         amazoneLink: pdfData.product.extra_link.amazoneLink,
