@@ -37,7 +37,7 @@ export const Schema = z.object({
 const ProductAuthorWidget = ({ 
   data: product,
 }: DetailWidgetProps<AdminProduct>) => {
- const { data: queryResult, } = useQuery({
+ const { data: queryResult,refetch } = useQuery({
     queryFn: () => sdk.admin.product.retrieve(product.id, {
       fields: "+author.*",
     }),
@@ -46,7 +46,7 @@ const ProductAuthorWidget = ({
 
   console.log('query',queryResult)
   // author to select from 
-  const { data,isLoading:loading,isError,refetch } = useQuery<AuthorsResponse>({
+  const { data,isLoading:loading,isError } = useQuery<AuthorsResponse>({
     queryFn: () => sdk.client.fetch(`/admin/authors`, {
       query: {
         limit:1000

@@ -15,11 +15,11 @@ export const CreateBookContentStep = createStep(
         console.log('content ban gyaa',bookContent)
         const remoteLink = container.resolve("remoteLink");
          const link = {
-                    [BookContent_MODULE]: {
-                        content_id: bookContent.id,
-                    },
                     [Modules.PRODUCT]: {
                         product_id: input.product_id,
+                    },
+                    [BookContent_MODULE]: {
+                        book_content_id: bookContent.id,
                     },
                 };
                 const linked = await remoteLink.create(link);

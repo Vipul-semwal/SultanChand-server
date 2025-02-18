@@ -75,19 +75,19 @@
           "mappedType": "datetime"
         }
       },
-      "name": "content",
+      "name": "book_content",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_content_deleted_at",
+          "keyName": "IDX_book_content_deleted_at",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_content_deleted_at\" ON \"content\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_book_content_deleted_at\" ON \"book_content\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "content_pkey",
+          "keyName": "book_content_pkey",
           "columnNames": [
             "id"
           ],

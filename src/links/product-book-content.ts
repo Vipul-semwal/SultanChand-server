@@ -7,5 +7,5 @@ export default defineLink(
     linkable: ProductModule.linkable.product,
     isList: true,
   },
-  BookContent.linkable.content
+  BookContent.linkable.bookContent
 )

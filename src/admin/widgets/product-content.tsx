@@ -7,15 +7,26 @@ import { sdk } from "../lib/sdk"
 // import { useMutationData } from "../hooks/useMutation"
 import { HttpTypes } from "@medusajs/framework/types"
 import BookContentForm from "../components/BookContent/form"
+import BookContent from "../components/BookContent/content"
+
+interface ContentItem {
+  order: number;
+  title: string;
+  content: string | ContentItem[];
+}
 
 interface Content {
-  title: string;
-  content: string | Content[];
-  order: number;
+  content: ContentItem[];
+  created_at: string;
+  deleted_at: string | null;
+  id: string;
+  product_id: string;
+  updated_at: string;
+  version: string;
 }
 
 interface ProductWithBookContent extends HttpTypes.StoreProduct {
-  bookContent: Content[];
+book_content: Content;
 }
 
 type productType={
@@ -30,19 +41,19 @@ const ProductContentWidget = ({
     console.log(product)
     const { data:res,refetch } = useQuery({
       queryFn: () => sdk.admin.product.retrieve( product.id, {
-        fields: "+content*",
+        fields: "+book_content.*",
       }),
       queryKey: [["book content",  product.id]],
     })
   
     const ContentData = res as unknown as  productType
-    console.log('wakwakwak',ContentData);
+    // console.log('wakwakwak',ContentData?.product?.book_content.id);
 return (
     <Container>
       <Heading >Product Content</Heading>
       <Container className="divide-y p-0">
           <div className="flex items-center justify-between px-6 py-4 flex-col">
-         <BookContentForm productId={product.id}/>
+        {ContentData?.product?.book_content ?<BookContent book_content={ContentData?.product?.book_content}/>:<BookContentForm productId={product?.id}/>}
           </div>
        </Container>
     </Container>

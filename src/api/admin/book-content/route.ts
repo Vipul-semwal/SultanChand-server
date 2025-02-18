@@ -27,7 +27,10 @@ export const GET = async (
       req: MedusaRequest<PostAdminCreateBookContentType>,
       res: MedusaResponse
     ) => {
-      console.log('reqqqq',req.validatedBody)
+      // console.log("hhlelel",req.body)
+      // res.json({ data: "jana" })
+      // return
+      console.log('ara ahi',req.validatedBody)
       const { result,errors  } = await CreateBookContentWorkflow(req.scope)
         .run({
           input: req.validatedBody,

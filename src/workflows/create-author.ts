@@ -80,26 +80,26 @@ import {
       console.log('athorr',author)
 
       // it means ther is only sinlge author
-      if(!Array.isArray(author)){
-        const authorId = data[0]?.author as unknown as AuthorLinkRecord
-        const res =   await  remoteLink.dismiss({
-          [Modules.PRODUCT]: {
-            product_id: input.product_id,
-          },
-          [Author_MODULE]: {
-            author_id: authorId.id,
-          },
-        });
-        console.log('inside the author object babay',res)
-      }
-      if(author.length>0){
-        for(let i=0;i<author.length;i++){
+      // if(!Array.isArray(author)){
+      //   const authorId = data[0]?.author as unknown as AuthorLinkRecord
+      //   const res =   await  remoteLink.dismiss({
+      //     [Modules.PRODUCT]: {
+      //       product_id: input.product_id,
+      //     },
+      //     [Author_MODULE]: {
+      //       author_id: authorId.id,
+      //     },
+      //   });
+      //   console.log('inside the author object babay',res)
+      // }
+      if(data.length>0){
+        for(let i=0;i<data.length;i++){
         const res =   await  remoteLink.dismiss({
             [Modules.PRODUCT]: {
               product_id: input.product_id,
             },
             [Author_MODULE]: {
-              author_id: author[i].id,
+              author_id: data[i].author?.id,
             },
           })
           console.log('res',res)

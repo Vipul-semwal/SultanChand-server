@@ -3,26 +3,33 @@ import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { sdk } from "../../lib/sdk";
-import { Heading, Button, Label, Input, toast, Text } from "@medusajs/ui";
+import { Heading, Button, Label, Input, toast } from "@medusajs/ui";
 import { BookContentSection } from "./types";
 
 const sectionSchema: z.ZodSchema<BookContentSection> = z.object({
   title: z.string().min(1),
-  content: z.union([z.string(), z.array(z.lazy(() => sectionSchema))]),
+  content: z.union([
+    z.string(),
+    z.array(z.lazy(() => sectionSchema)) 
+  ]),
   order: z.number(),
 });
 
-const contentSchema = z.object({
+export const contentSchema = z.object({
   version: z.string().optional(),
   content: z.array(sectionSchema),
   product_id: z.string(),
+  id:z.string().optional()
 });
+
 
 type BookContentFormProps = {
   productId: string;
+  isEditMode?: boolean
+  id?:string
 };
 
-const BookContentForm = ({ productId }: BookContentFormProps) => {
+const BookContentForm = ({ productId,isEditMode=false,id }: BookContentFormProps) => {
   const { data: existingContent } = useQuery({
     queryKey: ["bookContent", productId],
     queryFn: () => sdk.admin.bookContent.retrieve(productId),
@@ -42,13 +49,29 @@ const BookContentForm = ({ productId }: BookContentFormProps) => {
 
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof contentSchema>) => {
-     console.log('data', data);
+     console.log('allaah', data);
+       const url = isEditMode ? `/admin/book-content` : "/admin/book-content";
+           const method = isEditMode ? "PUT" : "POST";
+          
+           const response: any = await sdk.client.fetch(url, {
+             method,
+             body: data,
+             headers: {
+               "Content-Type": "application/json",
+             },
+           });
+     
+           if (response.errors) {
+             throw new Error("Something went wrong");
+           }
+            
+           return response;
     },
     onSuccess: () => {
-      toast.success("Content saved successfully");
+      toast.success(`Content ${isEditMode ? `updated` : "/saved"} successfully`);
     },
     onError: (error) => {
-      toast.error("Failed to save content");
+      toast.error(`Failed to ${isEditMode ? `update` : "/save"} content`);
       console.error("Content save error:", error);
     },
   });
@@ -79,10 +102,20 @@ const BookContentForm = ({ productId }: BookContentFormProps) => {
   };
 
   const handleSubmit = form.handleSubmit((data) => {
-    mutation.mutate({
-      ...data,
-      content: sections,
-    });
+    if (isEditMode && id) {
+      mutation.mutate({
+        ...data,
+        content: sections,
+        id:id
+  
+      });
+    }
+    else{
+      mutation.mutate({
+        ...data,
+        content: sections,
+        });
+    }
   });
 
   return (
