@@ -1,0 +1,47 @@
+name: Deploy Medusa Server to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Medusa Server
+      run: npx medusa build
+
+    - name: Deploy to EC2
+      uses: appleboy/scp-action@v0.1.6
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: ".medusa/server/*"
+        target: "/home/ubuntu/medusa-server"
+
+    - name: Start Medusa Server on EC2
+      uses: appleboy/ssh-action@v1.1.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd /home/ubuntu/medusa-server
+          echo "${{ secrets.ENV_PROD }}" > .env.production
+          npm install --production
+          pm2 stop medusa-server || true
+          pm2 start npm --name "medusa-server" -- run start
+          pm2 save
