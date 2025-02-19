@@ -41,7 +41,7 @@ jobs:
         rm: true
         tar_tmp_path: "/tmp"  
         # ⛔ EXCLUDE SSH KEY FILE TO PREVENT TAR ERROR
-        args: "--exclude=private_key.pem"
+        # args: "--exclude=private_key.pem"
 
     - name: Start Medusa Server on EC2
       uses: appleboy/ssh-action@v0.1.10
