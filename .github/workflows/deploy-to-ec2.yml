@@ -20,26 +20,24 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # ✅ Medusa doesn't need a build step unless using TypeScript
-    # - name: Build Medusa Server
-    #   run: npx medusa build 
+    # 🔥 Remove Medusa build step (only needed for TypeScript projects)
 
     - name: Decode SSH Private Key
       run: |
-        echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ~/private_key.pem
-        chmod 600 ~/private_key.pem
-        ls -lah ~/private_key.pem  # Debugging
+        echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > ./private_key.pem
+        chmod 600 ./private_key.pem
+        ls -lah ./private_key.pem  # ✅ Debugging step
 
     - name: Test SSH Connection
       run: |
-        ssh -i ~/private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo 'SSH Connection Successful'"
-        
-    - name: Deploy to EC2
+        ssh -i ./private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
+
+    - name: Deploy Medusa Server to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: ~/private_key.pem  # ✅ Fixed key path
+        key_path: ./private_key.pem  # 🔥 FIXED: Using relative path
         source: "./*"
         target: "/home/ubuntu/medusa-server"
 
@@ -48,11 +46,20 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: ~/private_key.pem  # ✅ Fixed key path
+        key_path: ./private_key.pem  # 🔥 FIXED: Using relative path
         script: |
           cd /home/ubuntu/medusa-server
+          
+          # ✅ Ensure .env file is correctly written
           echo "${{ secrets.ENV_PROD }}" | base64 --decode > .env.production
+          cat .env.production  # Debugging: Check if the env file is created
+
+          # ✅ Install dependencies
           npm install --production
+
+          # ✅ Restart Medusa Server using PM2
           pm2 stop medusa-server || true
           pm2 start npm --name "medusa-server" -- run start
           pm2 save
+
+          echo "✅ Medusa Server Deployment Complete!"
