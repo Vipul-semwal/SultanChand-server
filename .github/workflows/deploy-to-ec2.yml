@@ -23,12 +23,17 @@ jobs:
     - name: Build Medusa Server
       run: npx medusa build
 
+    - name: Decode SSH Private Key
+      run: |
+        echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > private_key.pem
+        chmod 600 private_key.pem
+
     - name: Deploy to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+        key: private_key.pem  
         source: ".medusa/server/*"
         target: "/home/ubuntu/medusa-server"
 
@@ -37,10 +42,10 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
+        key: private_key.pem 
         script: |
           cd /home/ubuntu/medusa-server
-          echo "${{ secrets.ENV_PROD }}" > .env.production
+          echo "${{ secrets.ENV_PROD }}" | base64 --decode > .env.production
           npm install --production
           pm2 stop medusa-server || true
           pm2 start npm --name "medusa-server" -- run start
