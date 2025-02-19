@@ -9,85 +9,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: 🚀 Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
+    - name: ⚙️ Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 18.x
 
-    - name: Install dependencies
+    - name: 📦 Install dependencies
       run: npm install
 
-    - name: Save SSH Key to File
+    - name: 🔑 Save SSH Key to File & Validate
       run: |
-        echo -e "${{ secrets.EC2_SSH_KEY }}" | sed 's/\r$//' > "$GITHUB_WORKSPACE/private_key.pem"
+        echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > "$GITHUB_WORKSPACE/private_key.pem"
         chmod 600 "$GITHUB_WORKSPACE/private_key.pem"
 
-    - name: Validate SSH Key
-      run: |
+        # Validate the key file
         if [[ ! -s "$GITHUB_WORKSPACE/private_key.pem" ]]; then
-          echo "❌ ERROR: SSH private key file is missing or empty!" >&2
+          echo "❌ ERROR: private_key.pem file is empty or missing!" >&2
           exit 1
         fi
 
-        head -3 "$GITHUB_WORKSPACE/private_key.pem" | grep "PRIVATE KEY" || {
-          echo "❌ ERROR: SSH private key file is not valid!" >&2
-          exit 1
-        }
-
-    - name: Debug SSH Key
+    - name: 🔍 Debug SSH Key & Check File Permissions
       run: |
         ls -l "$GITHUB_WORKSPACE/private_key.pem"
-        echo "🔍 First few lines of the key:"
-        head -3 "$GITHUB_WORKSPACE/private_key.pem"
+        head -5 "$GITHUB_WORKSPACE/private_key.pem"
 
-    - name: Test SSH Connection
+    - name: ✅ Test SSH Connection
       run: |
-        ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" \
-        ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
+        ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
 
-    - name: Debug Before SCP
+    - name: 🏗️ Ensure Target Directory Exists
       run: |
-        if [[ ! -f "$GITHUB_WORKSPACE/private_key.pem" ]]; then
-          echo "❌ ERROR: private_key.pem file is missing before SCP step!" >&2
-          exit 1
-        fi
+        ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+        mkdir -p /home/ubuntu/medusa-server && chmod 755 /home/ubuntu/medusa-server"
 
-    - name: Add Key to SSH Agent
+    - name: 📂 Deploy Medusa Server Code via Rsync
       run: |
-        eval "$(ssh-agent -s)"
-        ssh-add "$GITHUB_WORKSPACE/private_key.pem"
+        rsync -avz --delete --progress -e "ssh -o StrictHostKeyChecking=no -i $GITHUB_WORKSPACE/private_key.pem" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/ubuntu/medusa-server
 
-    - name: Deploy Medusa Server to EC2
-      uses: appleboy/scp-action@v0.1.6
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}  # ⬅ Key directly
-        source: "*, !private_key.pem"
-        target: "/home/ubuntu/medusa-server"
-        strip_components: 1
-        rm: true
-        tar_tmp_path: "/tmp"
-
-    - name: Start Medusa Server on EC2
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd /home/ubuntu/medusa-server
-          echo "${{ secrets.ENV_PROD }}" > .env
-          
-          command -v pm2 >/dev/null 2>&1 || npm install -g pm2
-          
-          npm install --production
-          
-          pm2 stop medusa-server || true
-          pm2 start npm --name "medusa-server" -- run start
-          pm2 save
-          
-          echo "✅ Deployment Complete!"
+    - name: 🚀 Start Medusa Server on EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+          cd /home/ubuntu/medusa-server &&
+          echo '${{ secrets.ENV_PROD }}' > .env &&
+          command -v pm2 >/dev/null 2>&1 || npm install -g pm2 &&
+          npm install --production &&
+          pm2 stop medusa-server || true &&
+          pm2 start npm --name 'medusa-server' -- run start &&
+          pm2 save &&
+          echo '✅ Deployment Complete!'"
