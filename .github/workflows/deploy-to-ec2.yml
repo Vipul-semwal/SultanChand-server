@@ -22,12 +22,7 @@ jobs:
 
     - name: Save SSH Key to File
       run: |
-        if [[ -z "${{ secrets.EC2_SSH_KEY }}" ]]; then
-          echo "❌ ERROR: EC2_SSH_KEY secret is missing!" >&2
-          exit 1
-        fi
-        
-        echo "${{ secrets.EC2_SSH_KEY }}" | tr -d '\r' > "$GITHUB_WORKSPACE/private_key.pem"
+        echo -e "${{ secrets.EC2_SSH_KEY }}" | sed 's/\r$//' > "$GITHUB_WORKSPACE/private_key.pem"
         chmod 600 "$GITHUB_WORKSPACE/private_key.pem"
 
     - name: Validate SSH Key
@@ -53,12 +48,24 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" \
         ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
 
+    - name: Debug Before SCP
+      run: |
+        if [[ ! -f "$GITHUB_WORKSPACE/private_key.pem" ]]; then
+          echo "❌ ERROR: private_key.pem file is missing before SCP step!" >&2
+          exit 1
+        fi
+
+    - name: Add Key to SSH Agent
+      run: |
+        eval "$(ssh-agent -s)"
+        ssh-add "$GITHUB_WORKSPACE/private_key.pem"
+
     - name: Deploy Medusa Server to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: "$GITHUB_WORKSPACE/private_key.pem"
+        key: ${{ secrets.EC2_SSH_KEY }}  # ⬅ Key directly
         source: "*, !private_key.pem"
         target: "/home/ubuntu/medusa-server"
         strip_components: 1
@@ -70,12 +77,11 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: "$GITHUB_WORKSPACE/private_key.pem"
+        key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           cd /home/ubuntu/medusa-server
           echo "${{ secrets.ENV_PROD }}" > .env
           
-          # Ensure PM2 is installed
           command -v pm2 >/dev/null 2>&1 || npm install -g pm2
           
           npm install --production
