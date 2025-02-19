@@ -31,7 +31,7 @@ jobs:
     - name: Deploy to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
-        host: ${{ 65.2.150.163 }}
+        host: "65.2.150.163"
         username: ${{ secrets.EC2_USER }}
         key: private_key.pem  
         source: ".medusa/server/*"
