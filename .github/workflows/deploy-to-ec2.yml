@@ -27,13 +27,18 @@ jobs:
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > private_key.pem
         chmod 600 private_key.pem
+        ls -lah private_key.pem  # Debugging step to ensure file exists
 
+    - name: Test SSH Connection
+      run: |
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo 'SSH Connection Successful'"
+        
     - name: Deploy to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
-        host: "65.2.150.163"
+        host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: private_key.pem  
+        key_path: private_key.pem  # ✅ Fixed: Using key_path instead of key
         source: ".medusa/server/*"
         target: "/home/ubuntu/medusa-server"
 
@@ -42,7 +47,7 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key: private_key.pem 
+        key_path: private_key.pem  # ✅ Fixed: Using key_path instead of key
         script: |
           cd /home/ubuntu/medusa-server
           echo "${{ secrets.ENV_PROD }}" | base64 --decode > .env.production
