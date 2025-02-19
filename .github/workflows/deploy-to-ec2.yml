@@ -26,7 +26,7 @@ jobs:
     - name: Decode SSH Private Key
       run: |
         echo "${{ secrets.EC2_SSH_KEY }}" | base64 --decode > private_key.pem
-        chmod 600 private_key.pem
+        chmod 700 private_key.pem
         ls -lah private_key.pem  # Debugging step to ensure file exists
 
     - name: Test SSH Connection
