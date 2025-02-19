@@ -22,20 +22,20 @@ jobs:
 
     - name: Save SSH Key to File
       run: |
-        printf '%s' "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-        chmod 600 private_key.pem
+        printf '%s' "${{ secrets.EC2_SSH_KEY }}" > "$GITHUB_WORKSPACE/private_key.pem"
+        chmod 600 "$GITHUB_WORKSPACE/private_key.pem"
 
     - name: Test SSH Connection
       run: |
-        ssh -o StrictHostKeyChecking=no -i private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
+        ssh -o StrictHostKeyChecking=no -i "$GITHUB_WORKSPACE/private_key.pem" ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo '✅ SSH Connection Successful'"
 
     - name: Deploy Medusa Server to EC2
       uses: appleboy/scp-action@v0.1.6
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: private_key.pem  
-        source: "*, !private_key.pem"  # ✅ Correct exclusion
+        key_path: "$GITHUB_WORKSPACE/private_key.pem"  # Explicit path
+        source: "*, !private_key.pem"
         target: "/home/ubuntu/medusa-server"
         strip_components: 1
         rm: true
@@ -46,7 +46,7 @@ jobs:
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
-        key_path: private_key.pem  
+        key_path: "$GITHUB_WORKSPACE/private_key.pem"
         script: |
           cd /home/ubuntu/medusa-server
           echo "${{ secrets.ENV_PROD }}" > .env
