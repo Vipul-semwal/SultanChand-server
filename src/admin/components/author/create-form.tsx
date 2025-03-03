@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod"; // ✅ Import resolver
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { sdk } from "../../lib/sdk";
-import { Heading, Button, Label, Input, toast, Textarea } from "@medusajs/ui";
+import { Heading, Button, Label, Input, toast,} from "@medusajs/ui";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const schema = z.object({
   id:z.string().optional(),
@@ -63,7 +65,7 @@ export const CreateForm: React.FC<CreateFormProps> = ({ edit = false, author, Ca
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authors", "authors-select"] });
-      toast.info("Success", { description: edit ? "Author updated" : "Author added" });
+      toast.success("Success", { description: edit ? "Author updated" : "Author added" });
       if (CallBack) CallBack();
     },
     onError: () => {
@@ -103,11 +105,39 @@ export const CreateForm: React.FC<CreateFormProps> = ({ edit = false, author, Ca
     }
   });
 
+  const quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      ['link',],
+      ['clean']
+    ]
+  };
+
   return (
     <>
       <Heading className="mb-4">{edit ? "Edit Author" : "Create Author"}</Heading>
       <FormProvider {...form}>
         <form onSubmit={onSubmit} className="space-y-6">
+        <div className="flex items-center justify-end gap-x-2">
+           {!edit? <Button
+              size="small"
+              variant="secondary"
+              type="button"
+              onClick={() => {
+                form.reset();
+                setSelectedImage(null);
+                setImagePreview(author?.image || null);
+              }}
+              disabled={mutation.isPending}
+            >
+              Cancel
+            </Button>:null}
+            <Button type="submit" size="small" disabled={mutation.isPending}>
+              {mutation.isPending ? "Saving..." : edit ? "Update" : "Save"}
+            </Button>
+          </div>
           {/* Name Field */}
           <Controller
             name="name"
@@ -122,17 +152,8 @@ export const CreateForm: React.FC<CreateFormProps> = ({ edit = false, author, Ca
           />
 
           {/* Description Field */}
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <div className="flex flex-col space-y-2">
-                <Label>Description</Label>
-                <Textarea {...field} className="resize-both" />
-                {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>} {/* ✅ Show error */}
-              </div>
-            )}
-          />
+         
+       
 
           {/* Image Upload */}
           <div className="flex flex-col space-y-2">
@@ -155,25 +176,26 @@ export const CreateForm: React.FC<CreateFormProps> = ({ edit = false, author, Ca
             )}
           />
 
-          {/* Buttons */}
-          <div className="flex items-center justify-end gap-x-2">
-            <Button
-              size="small"
-              variant="secondary"
-              type="button"
-              onClick={() => {
-                form.reset();
-                setSelectedImage(null);
-                setImagePreview(author?.image || null);
-              }}
-              disabled={mutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" size="small" disabled={mutation.isPending}>
-              {mutation.isPending ? "Saving..." : edit ? "Update" : "Save"}
-            </Button>
-          </div>
+<Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <div className="flex flex-col space-y-2">
+                <Label>Description</Label>
+                <ReactQuill
+                  theme="snow"
+                  value={field.value}
+                  onChange={(data)=>{
+                    form.setValue("description",data)
+                     
+                  }}
+                  modules={quillModules}
+                  className="h-56 mb-10"
+                />
+                {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>} {/* ✅ Show error */}
+              </div>
+            )}
+          />
         </form>
       </FormProvider>
     </>

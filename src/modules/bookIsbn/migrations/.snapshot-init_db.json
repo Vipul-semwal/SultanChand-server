@@ -15,31 +15,13 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "product_id": {
-          "name": "product_id",
+        "number": {
+          "name": "number",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "text"
-        },
-        "content": {
-          "name": "content",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "json"
-        },
-        "version": {
-          "name": "version",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
           "mappedType": "text"
         },
         "created_at": {
@@ -75,19 +57,19 @@
           "mappedType": "datetime"
         }
       },
-      "name": "book_content",
+      "name": "isbn",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "IDX_book_content_deleted_at",
+          "keyName": "IDX_isbn_deleted_at",
           "columnNames": [],
           "composite": false,
           "primary": false,
           "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_book_content_deleted_at\" ON \"book_content\" (deleted_at) WHERE deleted_at IS NULL"
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_isbn_deleted_at\" ON \"isbn\" (deleted_at) WHERE deleted_at IS NULL"
         },
         {
-          "keyName": "book_content_pkey",
+          "keyName": "isbn_pkey",
           "columnNames": [
             "id"
           ],

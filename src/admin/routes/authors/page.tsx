@@ -150,10 +150,10 @@ const handleDelete = (authorId: string) => {
       key: "name",
       label: "Name",
     },
-    {
-      key: "description",
-      label: "Description",
-    },
+    // {
+    //   key: "description",
+    //   label: "Description",
+    // },
     {
       key: "subText",
       label: "SubText",

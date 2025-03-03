@@ -72,6 +72,7 @@ const initialData = pdfData?.product.extra_link
             product_id={product.id}
             initialData={initialData}
             isEditMode={Boolean(initialData)}
+            cb={refetch}
           />
           </div>
        </Container>

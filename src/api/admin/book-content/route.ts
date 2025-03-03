@@ -9,6 +9,7 @@ import {contentSchema,UpdatecontentSchema} from "./validator";
 
 type PostAdminCreateBookContentType = z.infer<typeof contentSchema>;
 type PutAdminUpdateContentType = z.infer<typeof UpdatecontentSchema>;
+
 export const GET = async (
     req: MedusaRequest,
     res: MedusaResponse

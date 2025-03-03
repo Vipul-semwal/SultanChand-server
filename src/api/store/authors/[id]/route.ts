@@ -11,10 +11,15 @@ export async function GET(
     if (!author || typeof author.retrieveAuthor !== "function") {
       throw new Error("Product service is not properly registered or invalid.");
     }
-
     
-   const data = await author.retrieveAuthor(req.params.id);
-    console.log("Query Results:", { data });
+    const productQueryService = req.scope.resolve("query");
+    const { data, metadata } = await productQueryService.graph({
+      entity: "author",
+      fields: ["name","description","subText","image","products.*","id"], 
+      filters: { id: [req.params.id] },
+    });
+    
+ 
 
     res.json({
       data,

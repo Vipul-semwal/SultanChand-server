@@ -9,20 +9,14 @@ import { HttpTypes } from "@medusajs/framework/types"
 import BookContentForm from "../components/BookContent/form"
 import BookContent from "../components/BookContent/content"
 
-interface ContentItem {
-  order: number;
-  title: string;
-  content: string | ContentItem[];
-}
 
 interface Content {
-  content: ContentItem[];
+  content: string;
   created_at: string;
   deleted_at: string | null;
   id: string;
   product_id: string;
   updated_at: string;
-  version: string;
 }
 
 interface ProductWithBookContent extends HttpTypes.StoreProduct {
@@ -47,13 +41,15 @@ const ProductContentWidget = ({
     })
   
     const ContentData = res as unknown as  productType
-    // console.log('wakwakwak',ContentData?.product?.book_content.id);
+    const bookContent = ContentData?.product?.book_content;
+    console.log('wakwakwak',bookContent);
 return (
     <Container>
       <Heading >Product Content</Heading>
       <Container className="divide-y p-0">
           <div className="flex items-center justify-between px-6 py-4 flex-col">
-        {ContentData?.product?.book_content ?<BookContent book_content={ContentData?.product?.book_content}/>:<BookContentForm productId={product?.id}/>}
+          {/* <BookContentForm productId={product.id} isEditMode={true} id={bookContent.id} existingContent={bookContent} cb={refetch}/> */}
+           {bookContent?<BookContentForm productId={product.id} isEditMode={true} id={bookContent.id} existingContent={bookContent} cb={refetch}  />:<BookContentForm  productId={product.id}  cb={refetch}/>}
           </div>
        </Container>
     </Container>

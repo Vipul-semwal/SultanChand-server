@@ -1,8 +1,8 @@
 {
   "name": "medusa-starter-default",
   "version": "0.0.1",
-  "description": "A starter for Medusa projects.",
-  "author": "Medusa (https://medusajs.com)",
+  "description": "sultan chand project made by vipul semwal",
+  "author": "vipul semwal",
   "license": "MIT",
   "keywords": [
     "sqlite",
@@ -22,6 +22,8 @@
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@aws-sdk/s3-request-presigner": "^3.750.0",
     "@medusajs/admin-sdk": "2.1.3",
     "@medusajs/cli": "2.1.3",
     "@medusajs/framework": "2.1.3",
@@ -30,9 +32,12 @@
     "@mikro-orm/knex": "5.9.7",
     "@mikro-orm/migrations": "5.9.7",
     "@mikro-orm/postgresql": "5.9.7",
+    "@react-email/components": "0.0.33",
     "awilix": "^8.0.1",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.13.0"
+    "pg": "^8.13.0",
+    "react-quill": "^2.0.0",
+    "resend": "^4.1.2"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.1.3",

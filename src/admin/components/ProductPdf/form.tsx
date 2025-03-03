@@ -20,9 +20,10 @@ type PdfFormProps = {
   product_id: string;
   initialData?: z.infer<typeof schema>; // Pre-filled data for update
   isEditMode?: boolean; // Indicates if the form is in edit mode
+  cb?:()=>void
 };
 
-const PdfForm = ({ product_id, initialData, isEditMode = false }: PdfFormProps) => {
+const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProps) => {
   // console.log('form', initialData, isEditMode);
 
   const form = useForm<z.infer<typeof schema>>({
@@ -87,10 +88,12 @@ const PdfForm = ({ product_id, initialData, isEditMode = false }: PdfFormProps) 
     onSuccess: (data) => {
       console.log("Response from backend:", data);
       form.reset();
-      setExtraPdfs([]);
       toast.info("Info", {
         description: isEditMode ? "PDF data updated successfully!" : "PDF data saved successfully!",
       });
+      if(cb){
+        cb()
+      }
     },
     onError: () => {
       toast.error("Error", {
@@ -276,6 +279,11 @@ const PdfForm = ({ product_id, initialData, isEditMode = false }: PdfFormProps) 
               onClick={() => {
                 form.reset();
                 setExtraPdfs([]);
+                setExtraPdfs(Object.entries(initialData?.anypdf || {}).map(([label, url]) => ({
+                  label,
+                  file: null,
+                  url,
+                })))
               }}
             >
               Cancel

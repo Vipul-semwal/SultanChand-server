@@ -9,13 +9,14 @@ import {
   import {ProductPdfSchema,getLInksofProduct} from "./admin/extralinks/validators"
   import { contentSchema,UpdatecontentSchema } from "./admin/book-content/validator"
   import { reviewSchema } from "./store/validator"
-  import multer from "multer";
-  const storage = multer.memoryStorage();
-const upload = multer({ storage });
+  import { combinedParams } from "./store/serch/validator";
+  import uploadSchema from './store/upload/validator';
+  import {specimenRequestSchema} from "./store/specimen/validator";
+  import { publishWithUsSchema } from "./store/publish-with-us/validator";
+import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
 
 
-
-  export const GetAuthorSchema = createFindParams()
+  export const findparamsSchema = createFindParams()
   
   export default defineMiddlewares({
     routes: [
@@ -52,7 +53,7 @@ const upload = multer({ storage });
         method: "GET",
         middlewares: [
           validateAndTransformQuery(
-            GetAuthorSchema,
+            findparamsSchema,
             {
               defaults: [
                 "id",
@@ -72,7 +73,7 @@ const upload = multer({ storage });
         method: "GET",
         middlewares: [
           validateAndTransformQuery(
-            GetAuthorSchema,
+            findparamsSchema,
             {
               defaults: [
                 "id",
@@ -113,10 +114,6 @@ const upload = multer({ storage });
         ],
       },
       {
-        matcher: "/store/upload",
-        middlewares: [upload.single("file")],
-      },
-      {
         matcher: "/admin/book-content",
         method: "POST",
         middlewares: [
@@ -128,6 +125,86 @@ const upload = multer({ storage });
         method: "PUT",
         middlewares: [
           validateAndTransformBody(UpdatecontentSchema),
+        ],
+      },
+      {
+        matcher: "/store/serch",
+        method: "GET",
+        middlewares: [
+          validateAndTransformQuery(
+           combinedParams,{
+
+           }
+          ),
+        
+        ],
+      },
+      {
+        matcher: "/store/upload",
+        method: "POST",
+        middlewares: [
+        validateAndTransformBody(uploadSchema)
+        
+        ],
+      },
+      {
+        matcher: "/store/specimen",
+        method: "POST",
+        middlewares: [
+        validateAndTransformBody(specimenRequestSchema)
+        
+        ],
+      },
+      {
+        matcher: "/store/publish-with-us",
+        method: "POST",
+        middlewares: [
+        validateAndTransformBody(publishWithUsSchema)
+        
+        ],
+      },
+      {
+        matcher: "/admin/publish-with-us",
+        method: "GET",
+        middlewares: [
+          validateAndTransformQuery(
+            findparamsSchema,
+            {
+              defaults: [
+               '*'
+              ],
+              isList: true,
+            }
+          ),
+        ],
+      },
+      {
+        matcher: "/admin/specimenRequest",
+        method: "GET",
+        middlewares: [
+          validateAndTransformQuery(
+            findparamsSchema,
+            {
+              defaults: [
+               'email',"id","phone_number","school_name","created_at","updated_at"
+              ],
+              isList: true,
+            }
+          ),
+        ],
+      },
+      {
+        matcher: "/admin/isbn",
+        method: "PUT",
+        middlewares: [
+          validateAndTransformBody(updateIsbnSchema),
+        ],
+      },
+      {
+        matcher: "/admin/isbn",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(isbnSchema),
         ],
       },
     ],

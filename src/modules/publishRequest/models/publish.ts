@@ -1,0 +1,20 @@
+import { model } from "@medusajs/framework/utils";
+export const Publish = model.define("publish", {
+    id: model.id().primaryKey(),
+    author_name: model.text().searchable(),
+    institute_name: model.text().searchable(),
+    email: model.text().searchable(),
+    city: model.text().searchable(),
+    country: model.text().searchable(),
+    contact_number: model.text(),
+    discipline: model.text().searchable(),
+    synopsis: model.text(),
+    about_author: model.text(),
+    author_affiliation: model.text(),
+    address: model.text(),
+    state: model.text(),
+    pin_zip: model.text(),
+    title_of_book: model.text().searchable(),
+    subject: model.text().searchable(),
+    status_of_book: model.enum(["Draft", "Published", "Under Review"]),
+    });

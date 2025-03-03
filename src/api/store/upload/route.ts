@@ -1,17 +1,27 @@
-// import { Request, Response } from "express";
-// import { fileservice } from "@medusajs/medusa";
+import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import {putObject} from "src/service/s3"
+import { UploadSchemaType } from "./validator";
 
-// export const POST = async (req: Request, res: Response) => {
-//   const fileService: fileservice = req.scope.resolve("file");
+export const POST = async (
+  req: MedusaRequest<UploadSchemaType>,
+  res: MedusaResponse
+): Promise<void> => {
+  try {
+   const {filename,ContentType} = req.validatedBody;
+//    console.log("dhnadhanahdn:",filename,ContentType)
+    const url = await putObject(filename,ContentType);
+    // console.log('commadn:',url)
+    res.status(200).json({
+        data:url,
+        success:true
+    })
 
-//   if (!req.file) {
-//     return res.status(400).json({ message: "No file uploaded" });
-//   }
-
-//   try {
-//     const result = await fileService.upload(req.file);
-//     res.status(200).json({ url: result.url });
-//   } catch (error) {
-//     res.status(500).json({ message: "File upload failed", error: error.message });
-//   }
-// };
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({
+      message: "Failed to upload review",
+      error: error.message,
+      ssuccess:false
+    });
+  }
+};
