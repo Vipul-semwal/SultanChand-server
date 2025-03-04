@@ -1,7 +1,7 @@
 name: Deploy Medusa Server to EC2
 
 on:
-  pull:
+  push:
     branches: [main]
 
 jobs:
