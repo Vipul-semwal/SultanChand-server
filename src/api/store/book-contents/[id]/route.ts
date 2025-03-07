@@ -49,3 +49,5 @@ export const GET = async (
     
     
   };
+
+  // export const CORS = false

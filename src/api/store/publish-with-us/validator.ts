@@ -21,3 +21,5 @@ export const publishWithUsSchema = z.object({
   
   
   export type PublishWithUsFormData = z.infer<typeof publishWithUsSchema>;  
+
+  export const CORS = false

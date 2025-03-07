@@ -1,6 +1,9 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import AuthorModuleService from "src/modules/author/service";
 import { Author_MODULE } from "src/modules/author";
+import {ISBN_MODULE} from "src/modules/bookIsbn";
+import BookISBNService from "src/modules/bookIsbn/service";
+
 
 export const GET = async (
     req: MedusaRequest,
@@ -22,10 +25,18 @@ export const GET = async (
         })
         console.log('lunketoiopee',queries);
        }
+       if(name === "isbn"){
+        const isbncontentService:BookISBNService  = req.scope.resolve(ISBN_MODULE);
+        const isbns = await  isbncontentService.listIsbns({q:query});
+        queries = isbns.map((a)=>{
+          return a.id
+        })
+        console.log('lunketoiopee',queries);
+       }
 
         const { data, metadata } = await productQueryService.graph({
-          entity: "author",
-          fields: ["products.*"], 
+          entity:name as string,
+          fields: ["products.*",], 
           filters: { id:queries },
         });
         console.log('arabeta benkar',data)
@@ -55,3 +66,5 @@ export const GET = async (
     
     
   };
+
+  export const CORS = false

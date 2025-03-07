@@ -1,4 +1,6 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
+import ReviewModuleService from "src/modules/reviews/service";
+import { Review_MODULE } from "src/modules/reviews";
 
 export const GET = async (
   req: MedusaRequest,
@@ -46,5 +48,23 @@ export const GET = async (
     });
   }
 };
+
+export const Delete = async(req: MedusaRequest,
+    res: MedusaResponse
+  ): Promise<void>=>{
+    const reviewService:ReviewModuleService = req.scope.resolve(Review_MODULE);
+    try {
+        const review = await reviewService.deleteReviews(req.params.id);
+        res.json({message:"Deleted sucsessfully"});
+        } catch (error) {
+            console.error("Error deleting review:", error);
+            res.status(500).json({
+                message: "Failed to delete review",
+                error: error.message,
+                });
+
+            }
+
+}
 
 // export const CORS = false

@@ -27,7 +27,7 @@ type SpecimenRequest = {
   updated_at: string
 }
 
-const AuthorPage = () => {
+const SpecimenData = () => {
   const { id } = useParams<{ id: string }>()
 
   const { data } = useQuery<{ data: SpecimenRequest[] }>({
@@ -78,7 +78,7 @@ const AuthorPage = () => {
 const InfoItem = ({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) => (
   <div className="flex items-center space-x-2">
     {icon && <span>{icon}</span>}
-    <Text className="font-medium">{label}:</Text>
+    <Text className="font-medium">{label}:</Text> 
     <Text>{value}</Text>
   </div>
 )
@@ -100,4 +100,4 @@ export const config = defineRouteConfig({
   icon: DecisionProcess,
 })
 
-export default AuthorPage
+export default SpecimenData

@@ -14,6 +14,17 @@ import {
   import {specimenRequestSchema} from "./store/specimen/validator";
   import { publishWithUsSchema } from "./store/publish-with-us/validator";
 import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
+import rateLimit from "express-rate-limit";
+
+
+export const rateLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute (in milliseconds)
+  max: 3, // Allow only 3 requests per minute
+  message: "Too many requests, please try again after a minute.",
+  headers: true, // Send rate limit info in response headers
+});
+
+
 
 
   export const findparamsSchema = createFindParams()
@@ -111,6 +122,7 @@ import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
         method: "POST",
         middlewares: [
           validateAndTransformBody(reviewSchema),
+          rateLimiter
         ],
       },
       {
@@ -143,7 +155,8 @@ import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
         matcher: "/store/upload",
         method: "POST",
         middlewares: [
-        validateAndTransformBody(uploadSchema)
+        validateAndTransformBody(uploadSchema),
+        rateLimiter
         
         ],
       },
@@ -151,7 +164,8 @@ import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
         matcher: "/store/specimen",
         method: "POST",
         middlewares: [
-        validateAndTransformBody(specimenRequestSchema)
+        validateAndTransformBody(specimenRequestSchema),
+        rateLimiter
         
         ],
       },
@@ -159,25 +173,27 @@ import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
         matcher: "/store/publish-with-us",
         method: "POST",
         middlewares: [
-        validateAndTransformBody(publishWithUsSchema)
+        validateAndTransformBody(publishWithUsSchema),
+        rateLimiter
         
         ],
       },
-      {
-        matcher: "/admin/publish-with-us",
-        method: "GET",
-        middlewares: [
-          validateAndTransformQuery(
-            findparamsSchema,
-            {
-              defaults: [
-               '*'
-              ],
-              isList: true,
-            }
-          ),
-        ],
-      },
+      // {
+      //   matcher: "/admin/publish-with-us",
+      //   method: "GET",
+      //   middlewares: [
+      //     validateAndTransformQuery(
+      //       findparamsSchema,
+      //       {
+      //         defaults: [
+      //          '*',
+
+      //         ],
+      //         isList: true,
+      //       }
+      //     ),
+      //   ],
+      // },
       {
         matcher: "/admin/specimenRequest",
         method: "GET",

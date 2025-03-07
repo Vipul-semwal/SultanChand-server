@@ -11,13 +11,13 @@ export const GET = async (
   ) => {
     console.log('reqqqq',req.validatedBody);
    try {
-    const query = req.scope.resolve("query")
+    const query = req.scope.resolve("query");
     const { 
         data, 
         metadata
       } = await query.graph({
         entity: "publish",
-        ...req.remoteQueryConfig,
+        fields:['author_name',"email","contact_number","subject","id","created_at"],
       })
       console.log("query",data,metadata)
       res.json({ 

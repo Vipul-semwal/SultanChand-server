@@ -25,3 +25,4 @@ export const POST = async (
     });
   }
 };
+// export const CORS = false

@@ -34,3 +34,5 @@ import { Modules } from '@medusajs/framework/utils';
         
     }
    }; 
+
+  //  export const CORS = false

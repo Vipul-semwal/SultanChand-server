@@ -1,24 +1,21 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
-import { DecisionProcess } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useQuery } from "@tanstack/react-query"
 import { sdk } from "../../lib/sdk"
 import { useMemo, useState } from "react"
 import { Table } from "../../components/table"
 import { ActionMenu } from "../../components/action-menu"
-import { Plus,Pencil,Trash,Eye} from "@medusajs/icons"
-import FocusModalWrapper from "../../components/focusModel"
-import {CreateForm} from "../../components/author/create-form"
-import { ActionPrompt } from "../../components/prompt"
+import { Trash,Eye} from "@medusajs/icons"
+import { FaBookBible } from "react-icons/fa6";
 // import { ConstraintViolationException } from "@mikro-orm/core"
 import { useNavigate } from "react-router-dom"
 
 type AuthorsResponse = {
   data: {
-    id: string
-    email: string
-    phone_number: string
-    school_name: string
+    id: string;
+    author_name: string;
+    contact_number: string;
+    email: string;
     created_at: string
   }[]
   count: number
@@ -36,13 +33,13 @@ const offset = useMemo(() => {
 const navigate = useNavigate()
 
 const { data,refetch } = useQuery<AuthorsResponse>({
-  queryFn: () => sdk.client.fetch(`/admin/specimenRequest`, {
+  queryFn: () => sdk.client.fetch(`/admin/publish-with-us`, {
     query: {
       limit,
       offset,
     },
   }),
-  queryKey: [["specimenRequest", limit, offset]],
+  queryKey: [["publish with us", limit, offset]],
 })
 console.log('diditeradevardiwana:',data);   
 
@@ -102,12 +99,16 @@ const handleDelete = (authorId: string) => {
       label: "email",
     },
     {
-      key: "phone_number",
-      label: "Phone Number",
+      key: "subject",
+      label: "subject",
     },
     {
-      key: "school_name",
+      key: "contact_number",    
       label: "School Name",
+    },
+    {
+      key: "author_name",    
+      label: "author_name",
     },
     {
       key: "created_at",
@@ -132,7 +133,7 @@ const handleDelete = (authorId: string) => {
                     icon: <Eye />,
                     label: "View",
                     onClick: () => {
-                      navigate(`/specimen/${value}`)
+                      navigate(`/publish-with-us/${value}`)
                     },
                   },
                   {
@@ -161,8 +162,8 @@ const handleDelete = (authorId: string) => {
 }
 
 export const config = defineRouteConfig({
-  label: "specimen",
-  icon: DecisionProcess,
+  label: "publish with us",
+  icon: FaBookBible ,
 })
 
 export default SpecimenPage 
