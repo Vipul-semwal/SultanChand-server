@@ -62,7 +62,6 @@ export const Delete = async(req: MedusaRequest,
                 message: "Failed to delete review",
                 error: error.message,
                 });
-
             }
 
 }
