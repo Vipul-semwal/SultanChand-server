@@ -49,7 +49,7 @@ export const GET = async (
   }
 };
 
-export const Delete = async(req: MedusaRequest,
+export const DELETE = async(req: MedusaRequest,
     res: MedusaResponse
   ): Promise<void>=>{
     const reviewService:ReviewModuleService = req.scope.resolve(Review_MODULE);
@@ -63,7 +63,6 @@ export const Delete = async(req: MedusaRequest,
                 error: error.message,
                 });
             }
-
 }
 
 // export const CORS = false

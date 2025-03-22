@@ -6,10 +6,10 @@ import { sdk } from "../../lib/sdk"
 import { useMemo, useState } from "react"
 import { Table } from "../../components/table"
 import { ActionMenu } from "../../components/action-menu"
-import { Plus,Pencil,Trash,Eye} from "@medusajs/icons"
-import FocusModalWrapper from "../../components/focusModel"
-import {CreateForm} from "../../components/author/create-form"
+import { Trash,Eye} from "@medusajs/icons"
+
 import { ActionPrompt } from "../../components/prompt"
+import { useDeleteWithPrompt } from "../../hooks/useDeleteWithPrompt"
 // import { ConstraintViolationException } from "@mikro-orm/core"
 import { useNavigate } from "react-router-dom"
 
@@ -49,41 +49,22 @@ console.log('diditeradevardiwana:',data);
 
 
 // Focus Model open state
-
-const [focusModalState, setFocusModalState] = useState({
-  Child: null as React.ReactNode,
-  saveButtonName: "Save",
-  saveButtonOnClick: () => {},
-  open: false,
-  setOpen: (val: boolean) => setFocusModalState((prev) => ({ ...prev, open: val })),
-});
-
 // Delete Author
-const [isDeletePromptOpen, setDeletePromptOpen] = useState(false);
-const [authorToDelete, setAuthorToDelete] = useState<string | null>(null);
-
-const deleteAuthor = async (authorId: string) => {
-  try {
-   const res =  await sdk.client.fetch<Promise<{message:string}>>(`/admin/authors/${authorId}`, { method: "DELETE" });
-   return {...res,status:200}
-    
-  } catch (error) {
-    console.error(error);
-    return {status:500,message:'something went wrong'}
-  }
-};
-const onsuccess = ()=>{
-  refetch();
-  setDeletePromptOpen(false);
-  setAuthorToDelete(null);
-}
-const handleDelete = (authorId: string) => {
-  setAuthorToDelete(authorId); // Set the author ID to be deleted
-  setDeletePromptOpen(true); // Open the delete confirmation prompt
-};
-
+const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,handleDelete} =  useDeleteWithPrompt("specimenRequest", refetch);
   return (
     <Container className="divide-y p-0">
+        <ActionPrompt 
+              open={isDeletePromptOpen}
+              onOpenChange={setDeletePromptOpen}
+              title="Delete Specimen"
+              description="Are you sure you want to delete this Specimen Request? This action cannot be undone."
+              mutationKey="delete-Specimen"
+              mutationFn={deleteData} 
+              mutationArgs={dataToDelete}
+              actionLabel="Delete"
+              onsuccess={onsuccess}
+              queryKey={["specimenRequest", limit, offset]}
+            />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <Heading level="h2">Specimen Requests</Heading>

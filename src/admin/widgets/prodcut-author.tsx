@@ -13,7 +13,7 @@ type AdminProductAuthor = AdminProduct & {
     id: string
     name: string
   }
-}
+};
 
 type AuthorsResponse = {
   author: {

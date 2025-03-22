@@ -26,8 +26,9 @@ export function ActionPrompt({
   mutationArgs,
   queryKey,
   actionLabel,
+  onsuccess,
 }: ActionPromptProps) {
-  const { mutate, isPending } = useMutationData([mutationKey], mutationFn, queryKey);
+  const { mutate, isPending } = useMutationData([mutationKey], mutationFn, queryKey,onsuccess);
 
   const handleAction = () => {
     mutate(mutationArgs); // Pass dynamic arguments to the mutation function

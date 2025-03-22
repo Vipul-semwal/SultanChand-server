@@ -2,6 +2,8 @@ import {
     MedusaRequest,
     MedusaResponse,
   } from "@medusajs/framework/http";
+  import specimenRequestModuleService from "src/modules/specimenRequest/service";
+  import { specimen_MODULE } from "src/modules/specimenRequest";
 
 
 
@@ -34,3 +36,31 @@ export const GET = async (
        
    }
   }; 
+
+  export async function DELETE(
+    req: MedusaRequest,
+    res: MedusaResponse
+  ): Promise<void> {
+    console.log('ahay in the delete function',req.params.id);       
+    try {
+       const SpecimenService: specimenRequestModuleService  = req.scope.resolve(specimen_MODULE );
+  
+      const Id = req.params.id;
+      if (!Id) {
+        res.status(400).json({ message: " SpecimenService ID is required." });
+        return;
+      }
+
+      await SpecimenService.deleteSpecimenRequests(Id);
+      res.json({
+        message: "deleted successfully.",
+      });
+
+    } catch (error) {
+      console.error("Error in delete process:", error);
+      res.status(500).json({
+        message: "Failed to process delete request.",
+        error: error.message,
+      });
+    }
+  }

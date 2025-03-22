@@ -9,6 +9,8 @@ import { Trash,Eye} from "@medusajs/icons"
 import { FaBookBible } from "react-icons/fa6";
 // import { ConstraintViolationException } from "@mikro-orm/core"
 import { useNavigate } from "react-router-dom"
+import { ActionPrompt } from "../../components/prompt"
+import { useDeleteWithPrompt } from "../../hooks/useDeleteWithPrompt"
 
 type AuthorsResponse = {
   data: {
@@ -55,32 +57,23 @@ const [focusModalState, setFocusModalState] = useState({
   setOpen: (val: boolean) => setFocusModalState((prev) => ({ ...prev, open: val })),
 });
 
-// Delete Author
-const [isDeletePromptOpen, setDeletePromptOpen] = useState(false);
-const [authorToDelete, setAuthorToDelete] = useState<string | null>(null);
-
-const deleteAuthor = async (authorId: string) => {
-  try {
-   const res =  await sdk.client.fetch<Promise<{message:string}>>(`/admin/authors/${authorId}`, { method: "DELETE" });
-   return {...res,status:200}
-    
-  } catch (error) {
-    console.error(error);
-    return {status:500,message:'something went wrong'}
-  }
-};
-const onsuccess = ()=>{
-  refetch();
-  setDeletePromptOpen(false);
-  setAuthorToDelete(null);
-}
-const handleDelete = (authorId: string) => {
-  setAuthorToDelete(authorId); // Set the author ID to be deleted
-  setDeletePromptOpen(true); // Open the delete confirmation prompt
-};
+// Delete logic
+const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,handleDelete} =  useDeleteWithPrompt("publish-with-us", refetch);
 
   return (
     <Container className="divide-y p-0">
+       <ActionPrompt 
+              open={isDeletePromptOpen}
+              onOpenChange={setDeletePromptOpen}
+              title="Delete Request"
+              description="Are you sure you want to delete this Publish with use request? This action cannot be undone."
+              mutationKey="delete-Publishrequest"
+              mutationFn={deleteData} 
+              mutationArgs={dataToDelete}
+              actionLabel="Delete"
+              onsuccess={onsuccess}
+              queryKey={["publishWithus", limit, offset]}
+            />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <Heading level="h2">Specimen Requests</Heading>

@@ -10,7 +10,7 @@ import { Plus,Pencil,Trash} from "@medusajs/icons"
 import FocusModalWrapper from "../../components/focusModel"
 import {CreateForm} from "../../components/author/create-form"
 import { ActionPrompt } from "../../components/prompt"
-import { ConstraintViolationException } from "@mikro-orm/core"
+// import { ConstraintViolationException } from "@mikro-orm/core"
 
 type AuthorsResponse = {
   author: {

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import { sdk } from "../../../lib/sdk";
 import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaBookOpen, FaUser } from "react-icons/fa";
+import { useState } from "react";
 
 // Type for publishwithusdata
 export type PublishWithUsData = {
