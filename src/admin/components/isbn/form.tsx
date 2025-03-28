@@ -64,7 +64,10 @@ const BookIsbnForm = ({ productId, isEditMode = false, id, existingContent, cb }
         },
       });
 
-      if (response.errors) throw new Error("Something went wrong");
+      if (response.errors) {
+        console.log('this is the erro :',response.errors)
+        throw new Error("Something went wrong");
+      }
       return response;
     },
     onSuccess: () => {
