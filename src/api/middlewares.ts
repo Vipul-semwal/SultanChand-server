@@ -223,5 +223,12 @@ export const rateLimiter = rateLimit({
           validateAndTransformBody(isbnSchema),
         ],
       },
+      {
+        matcher: "/admin/isbn-create",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(isbnSchema),
+        ],
+      },
     ],
   })
