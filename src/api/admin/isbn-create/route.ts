@@ -63,18 +63,17 @@ export const POST = async (
         res: MedusaResponse
       )=>{
         console.log('reqqqq',req.validatedBody)
-        const { result,errors  } = await UpdateIsbnWorkflow(req.scope)
-        .run({
-          input: req.validatedBody,
-          throwOnError:false
-        })
+     try {
+      const isbnService:ISBNService = req.scope.resolve(ISBN_MODULE);
+      const isbnData = await isbnService.updateIsbns(req.validatedBody)
     
-        if (errors.length) {
-          console.log('error',errors)
-          return res.json({
-            errors: errors.map((error) => error.error),
-          }).status(500)
-      }
-      
-      res.json({ data: result,sucsess:true,message:"created successfully"  })
+    res.json({ data: isbnData,sucsess:true,message:"updated successfully"  })
+     } catch (error) {
+      console.error("Error Updating ISBN:", error);
+      return res.status(500).json({
+        errors: "Error Updating data",
+        success: false,
+        message: "Something went wrong",
+      });
+     }
       }
