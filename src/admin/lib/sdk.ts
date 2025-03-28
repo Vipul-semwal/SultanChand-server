@@ -1,6 +1,6 @@
 import Medusa from "@medusajs/js-sdk";
-// const  baseUrl = "https://admin.sultanchandandsons.com";
-const baseUrl = "http://localhost:9000"
+const  baseUrl = "https://admin.sultanchandandsons.com";
+// const baseUrl = "http://localhost:9000"
 
 
 export const sdk = new Medusa({
