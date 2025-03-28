@@ -2,7 +2,7 @@ import {
     MedusaRequest,
     MedusaResponse,
   } from "@medusajs/framework/http";
-import { CreateIsbnWorkflow,UpdateIsbnWorkflow } from "src/workflows/isbn/isbnWorkflow";
+import { CreateIsbnWorkflow,UpdateIsbnWorkflow } from "src/workflows/isbn-create/isbnWorkflow";
 import { IsbnType,UpdateIsbnType } from "./validator";
 
 

@@ -53,7 +53,7 @@ const BookIsbnForm = ({ productId, isEditMode = false, id, existingContent, cb }
   // ✅ Mutation for saving/updating
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof contentSchema>) => {
-      const url = "/admin/isbn";
+      const url = "/admin/isbn-create";
       const method = isEditMode ? "PUT" : "POST";
 
       const response: any = await sdk.client.fetch(url, {
@@ -111,7 +111,7 @@ const BookIsbnForm = ({ productId, isEditMode = false, id, existingContent, cb }
             render={({ field }) => (
               <div className="flex flex-col space-y-2">
                 <Label>ISBN Number</Label>
-                <Input {...field} />
+                <Input {...field} />  
                 {errors.number && <p className="text-red-500 text-sm">{errors.number.message}</p>}
               </div>
             )}
