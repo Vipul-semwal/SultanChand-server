@@ -41,12 +41,12 @@ module.exports = defineConfig({
         ],
       },
     },
-    {
-      resolve: "@medusajs/medusa/event-bus-redis",
-      options: { 
-        redisUrl: process.env.REDIS_URL,
-      },
-    },
+    // {
+    //   resolve: "@medusajs/medusa/event-bus-redis",
+    //   options: { 
+    //     redisUrl: process.env.REDIS_URL,
+    //   },
+    // },
     // {
     //   resolve: "@medusajs/medusa/notification",
     //   options: {

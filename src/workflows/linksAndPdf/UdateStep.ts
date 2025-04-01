@@ -17,11 +17,20 @@ import {
             questionBankPdf: input.questionBankPdf,
             anypdf:input.anypdf
           };
-          console.log('inside createstep',input)
-
-          const UpdatedLink = await PdfLinkModuleService.updateExtraLinks({id:input.product_id,...pdfObj,})     
-          console.log('seeTheUpdatedReponse',UpdatedLink);
+          console.log('inside createstep',pdfObj);
+          
+          const UpdatedLink = await PdfLinkModuleService.updateExtraLinks({
+            id: input.product_id, // First, clear old data
+            anypdf: null,  
+          });
+          console.log('UpdatedLink',UpdatedLink);
+          
+          const FinalUpdatedLink = await PdfLinkModuleService.updateExtraLinks({
+            id: input.product_id,
+            ...pdfObj,
+          });
+          console.log('FinalUpdatedLink',FinalUpdatedLink); 
      
-          return new StepResponse(UpdatedLink);
+          return new StepResponse(FinalUpdatedLink,);
     },
  )

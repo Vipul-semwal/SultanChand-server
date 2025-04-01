@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { z } from "zod";
 import { sdk } from "../../lib/sdk";
 import { Heading, Button, Label, Input, toast } from "@medusajs/ui";
+import { MdAltRoute, MdDelete } from "react-icons/md";
 
 const schema = z.object({
   amazoneLink: z.string().url().optional(),
@@ -56,6 +57,10 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
       url,
     }))
   );
+  const removeItem = (index: number) => {
+    setExtraPdfs((prev) => prev.filter((_, i) => i !== index));
+  };
+  
   const uploadFile = async (file: File) => {
     try {
       const response = await sdk.admin.upload.create({ files: [file] });
@@ -109,25 +114,29 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
   };
 
   const handleExtraPdfUpload = async () => {
-    const pdfsToUpload = extraPdfs.map(async (pdf) => {
-      if (pdf.file) {
-        const url = await uploadFile(pdf.file);
-        return { label: pdf.label, url };
+    const uploadTasks = extraPdfs.map(async (pdf) => {
+      try {
+        const url = pdf.file ? await uploadFile(pdf.file) : pdf.url;
+        return url ? { label: pdf.label, url } : null;
+      } catch (error) {
+        console.error(`Failed to upload ${pdf.label}`, error);
+        return null;
       }
-      return pdf.url ? { label: pdf.label, url: pdf.url } : null;
     });
-
-    const uploadedPdfs = await Promise.all(pdfsToUpload);
-    const pdfRecord = uploadedPdfs.reduce((acc, pdf) => {
-      if (pdf) acc[pdf.label] = pdf.url!;
-      return acc;
-    }, {} as Record<string, string>);
-    return pdfRecord;
+  
+    const uploadedPdfs = (await Promise.all(uploadTasks)).filter(Boolean);
+    
+    return Object.fromEntries(uploadedPdfs.filter((pdf): pdf is { label: string; url: string } => pdf !== null).map(({ label, url }) => [label, url]));
   };
+  
 
   const handleSubmit = form.handleSubmit(async (values) => {
+    console.log("Form values:",{...values, anypdf: extraPdfs,});
+
     try {
       const anyPdf = await handleExtraPdfUpload();
+      console.log("Uploaded PDFs:", {...values, anypdf: anyPdf,});
+
       mutation.mutate({ ...values, anypdf: anyPdf,});
     } catch (error) {
       console.error("Error saving PDF data:", error);
@@ -256,6 +265,11 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
                     }
                   />
                 </div>
+               <div className="dlt mt-5">
+               <MdDelete fontSize={"20px"} className="cursor-pointer" onClick={()=>{
+                  removeItem(index)
+               }} color="red"/>  
+               </div>
               </div>
             ))}
             <Button
