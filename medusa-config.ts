@@ -10,6 +10,7 @@ module.exports = defineConfig({
     //   tls: {}, // Force TLS/SSL
     // },
     redisUrl: process.env.REDIS_URL!,
+    
   http: {
     storeCors: process.env.STORE_CORS!,   
     adminCors: process.env.ADMIN_CORS!,

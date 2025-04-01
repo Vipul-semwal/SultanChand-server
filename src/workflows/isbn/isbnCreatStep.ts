@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework/workflows-sdk";
 import ISBNService from "src/modules/bookIsbn/service";
 import isbn, { ISBN_MODULE } from "src/modules/bookIsbn";
-import  {isbnType} from "./type";
+import  {isbnType} from "../isbn-create/type";
 import { Modules } from "@medusajs/framework/utils";
 
 export const CreateIsbnStep = createStep(

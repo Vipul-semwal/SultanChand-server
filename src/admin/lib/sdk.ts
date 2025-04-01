@@ -1,10 +1,11 @@
 import Medusa from "@medusajs/js-sdk";
+const  baseUrl = "https://admin.sultanchandandsons.com";
+// const baseUrl = "http://localhost:9000"
+
 
 export const sdk = new Medusa({
-  baseUrl: process.env.NODE_ENV === "development"
-    ? "http://localhost:9000"
-    : "https://admin.sultanchandandsons.com",
-  debug: process.env.NODE_ENV === "development",
+  baseUrl,
+  debug: true,
   auth: {
     type: "session",
   },
