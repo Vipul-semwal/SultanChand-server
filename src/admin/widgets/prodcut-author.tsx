@@ -1,19 +1,19 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { DetailWidgetProps, AdminProduct } from "@medusajs/framework/types"
-import { clx, Container, Heading, Text,Select,toast } from "@medusajs/ui"
+import { clx, Container, Heading, Text,Select,toast,Button } from "@medusajs/ui"
 import { useQuery,useQueryClient } from "@tanstack/react-query"
 import { useMutation} from "@tanstack/react-query";
 import { sdk } from "../lib/sdk"
 import {useCustomSelect} from "../hooks/useCustomSelect"
 import {  z } from "zod"
+import { ImCross } from "react-icons/im";
 
 // Define the type for AdminProduct with an optional author field
+type author = { id: string; name: string }
 type AdminProductAuthor = AdminProduct & {
-  author?: {
-    id: string
-    name: string
-  }
+  author?: author | { id: string; name: string }[];
 };
+
 
 type AuthorsResponse = {
   author: {
@@ -45,6 +45,7 @@ const ProductAuthorWidget = ({
   })
 
   console.log('query',queryResult)
+
   // author to select from 
   const { data,isLoading:loading,isError } = useQuery<AuthorsResponse>({
     queryFn: () => sdk.client.fetch(`/admin/authors`, {
@@ -64,8 +65,25 @@ const ProductAuthorWidget = ({
     return {value: item.id,
       label: item.name}
   });
+
   // Safely extract the author's name
-  const authorName = (queryResult?.product as AdminProductAuthor)?.author?.name;
+  function handleProductAuthor(product: AdminProductAuthor) {
+    if (!product.author) {
+      console.log("No author assigned.");
+      return;
+    }
+  
+    if (Array.isArray(product.author)) {
+      console.log("Multiple authors:");
+     return  product.author.map((author) => {
+            return {name: author.name,id:author.id}
+     });
+    } else {
+      return [{name: product.author.name,id:product.author.id}];
+    }
+  };
+  const authorList = queryResult?.product ? handleProductAuthor(queryResult.product) : [];
+  console.log('authorName',authorList);
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
@@ -104,6 +122,28 @@ const ProductAuthorWidget = ({
   // console .log('authorOptions',authorOptions)
   const {selectedValue,handleValueChange,options} = useCustomSelect(authorOptions || [{value:"null",label:"null"}],product.id,mutation.mutate)   
    
+  // removing author
+  const removeAuthorMutation = useMutation({
+    mutationFn: async (authorId: string) => {
+     const res:any = await sdk.client.fetch("/admin/authors/link", {
+        method: "DELETE",
+        body: { author_id: authorId, product_id: product.id },
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.errors) {
+        throw new Error("Something went wrong");
+      }
+      return res
+    },
+    onSuccess: () => {
+      toast.success("Author removed")
+      queryClient.invalidateQueries({ queryKey: ["product", product.id] })
+      refetch()
+    },
+    onError: () => {
+      toast.error("Error removing author")
+    },
+  })
   
   return (
     <>
@@ -118,17 +158,23 @@ const ProductAuthorWidget = ({
           `text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4`
         )}
       >
-        <Text size="small" weight="plus" leading="compact">
-          Name
-        </Text>
-
-        <Text
-          size="small"
-          leading="compact"
-          className="whitespace-pre-line text-pretty"
-        >
-          {authorName || "-"}
-        </Text>
+       <div className="flex items-center gap-2 py-">
+          {(authorList ?? []).length > 0 ? (
+            (authorList ?? []).map((author:author) => (
+              <div key={author.id} className="flex items-center justify-between py-1 ">
+                <Text size="small" weight="plus">{author.name}</Text>
+               <div className="ml-2">
+                <Button onClick={()=>{
+                  removeAuthorMutation.mutate(author.id)
+                }} disabled={removeAuthorMutation.isPending}> <ImCross/></Button>
+              
+               </div>
+              </div>
+            ))
+          ) : (
+            <Text size="small">No author assigned.</Text>
+          )}
+        </div>
       </div>
     </Container>
     <Container className="divide-y p-0">

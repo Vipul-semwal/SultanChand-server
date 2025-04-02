@@ -53,6 +53,13 @@ export const rateLimiter = rateLimit({
         ],
       },
       {
+        matcher: "/admin/authors/link",
+        method: "DELETE",
+        middlewares: [
+          validateAndTransformBody(linkAuthor),
+        ],
+      },
+      {
         matcher: "/admin/products",
         method: ["POST"],
         additionalDataValidator: {

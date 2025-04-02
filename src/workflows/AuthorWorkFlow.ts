@@ -4,7 +4,7 @@ import {
     WorkflowResponse,
   } from "@medusajs/framework/workflows-sdk"
   import { createAuthorStep,CreateAuthorStepInput,linkAuthorToBookStep,linkAuthorInput,
-    updateAuthorStepType,UpdateAuthorStep
+    updateAuthorStepType,UpdateAuthorStep,UnlinkAuthorStep
    } from "./create-author";
  
   
@@ -38,4 +38,16 @@ import {
       const updatedAuthor = UpdateAuthorStep(input)
       return new WorkflowResponse(updatedAuthor);
     }
-  )
+  );
+
+  export const UnlinkBookToAuthorWorkflow = createWorkflow(
+    "Unlink-book-to-author",
+    (input: linkAuthorInput) => {
+      console.log('jajajjaj',input)
+      console.log('inputhjshdfj',input)
+      const UnlinkAuthored = UnlinkAuthorStep(input)
+  
+      return new WorkflowResponse(UnlinkAuthored)
+    }
+  );
+  

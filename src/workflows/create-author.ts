@@ -66,45 +66,45 @@ import {
 
       // remove if already linked
       // wip imporve the remove queyr see if we can do it in one query withouth looping all authros and get the exact author id
-      const { data } = await query.graph({
-        entity: Modules.PRODUCT,
-        fields: [
-          "author.*",
-        ],
-        filters: { id: [input.product_id] },
-      })
+    //   const { data } = await query.graph({
+    //     entity: Modules.PRODUCT,
+    //     fields: [
+    //       "author.*",
+    //     ],
+    //     filters: { id: [input.product_id] },
+    //   })
 
-      console.log('lareadyy',data);
-     // loop over every query then remove the author id
-      const author = data[0]?.author as unknown as AuthorLinkRecord[]
-      console.log('athorr',author)
+    //   console.log('lareadyy',data);
+    //  // loop over every query then remove the author id
+    //   const author = data[0]?.author as unknown as AuthorLinkRecord[]
+    //   console.log('athorr',author)
 
-      // it means ther is only sinlge author
-      // if(!Array.isArray(author)){
-      //   const authorId = data[0]?.author as unknown as AuthorLinkRecord
-      //   const res =   await  remoteLink.dismiss({
-      //     [Modules.PRODUCT]: {
-      //       product_id: input.product_id,
-      //     },
-      //     [Author_MODULE]: {
-      //       author_id: authorId.id,
-      //     },
-      //   });
-      //   console.log('inside the author object babay',res)
-      // }
-      if(data.length>0){
-        for(let i=0;i<data.length;i++){
-        const res =   await  remoteLink.dismiss({
-            [Modules.PRODUCT]: {
-              product_id: input.product_id,
-            },
-            [Author_MODULE]: {
-              author_id: data[i].author?.id,
-            },
-          })
-          console.log('res',res)
-        }
-      }
+    //   // it means ther is only sinlge author
+    //   // if(!Array.isArray(author)){
+    //   //   const authorId = data[0]?.author as unknown as AuthorLinkRecord
+    //   //   const res =   await  remoteLink.dismiss({
+    //   //     [Modules.PRODUCT]: {
+    //   //       product_id: input.product_id,
+    //   //     },
+    //   //     [Author_MODULE]: {
+    //   //       author_id: authorId.id,
+    //   //     },
+    //   //   });
+    //   //   console.log('inside the author object babay',res)
+    //   // }
+    //   if(data.length>0){
+    //     for(let i=0;i<data.length;i++){
+    //     const res =   await  remoteLink.dismiss({
+    //         [Modules.PRODUCT]: {
+    //           product_id: input.product_id,
+    //         },
+    //         [Author_MODULE]: {
+    //           author_id: data[i].author?.id,
+    //         },
+    //       })
+    //       console.log('res',res)
+    //     }
+    //   }
   
       // link
       const link = {
@@ -136,6 +136,29 @@ import {
       return new StepResponse(author, author);
     }
   )
+
+  export const UnlinkAuthorStep = createStep(
+    "Unlink-step",
+    async(input:linkAuthorInput,{container})=>{
+      const authorModuleService: AuthorModuleService = container.resolve(
+        Author_MODULE
+      );
+      const query = container.resolve("query");   
+      const remoteLink = container.resolve("remoteLink");
+      const logger = container.resolve("logger")
+      const {product_id,author_id} = input
+      const res =   await  remoteLink.dismiss({
+        [Modules.PRODUCT]: {
+          product_id: input.product_id,
+        },
+        [Author_MODULE]: {
+          author_id: author_id,
+        },
+      })
+      console.log('dismedlink',res);
+      return new StepResponse(res, res);
+      }
+    )
   
 
 
