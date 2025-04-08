@@ -7,6 +7,9 @@ import { sdk } from "../lib/sdk"
 import {useCustomSelect} from "../hooks/useCustomSelect"
 import {  z } from "zod"
 import { ImCross } from "react-icons/im";
+import {useState,useEffect} from "react";
+import { FiSearch, FiX } from "react-icons/fi";
+import { Input } from "@medusajs/ui";
 
 // Define the type for AdminProduct with an optional author field
 type author = { id: string; name: string }
@@ -37,6 +40,11 @@ export const Schema = z.object({
 const ProductAuthorWidget = ({ 
   data: product,
 }: DetailWidgetProps<AdminProduct>) => {
+
+  const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
  const { data: queryResult,refetch } = useQuery({
     queryFn: () => sdk.admin.product.retrieve(product.id, {
       fields: "+author.*",
@@ -47,14 +55,43 @@ const ProductAuthorWidget = ({
   console.log('query',queryResult)
 
   // author to select from 
-  const { data,isLoading:loading,isError } = useQuery<AuthorsResponse>({
-    queryFn: () => sdk.client.fetch(`/admin/authors`, {
-      query: {
-        limit:1000
-      },
-    }),
-    queryKey: [["authors-select"]],
+  // const { data,isLoading:loading,isError } = useQuery<AuthorsResponse>({
+  //   queryFn: () => sdk.client.fetch(`/admin/authors`, {
+  //     query: {
+  //       limit:1000
+  //     },
+  //   }),
+  //   queryKey: [["authors-select"]],
+  // });
+
+  const { data } = useQuery<AuthorsResponse>({
+    queryFn: () => {
+      const url = debouncedSearch
+        ? `/admin/authors/serch`
+        : `/admin/authors`
+      const query = debouncedSearch
+        ? { query: debouncedSearch }
+        : { limit:30 }
+  
+      return sdk.client.fetch(url, {
+        method: "GET",
+        query,
+      })
+    },
+    queryKey: debouncedSearch
+      ? [["authors-search-select", debouncedSearch]]
+      : [["author-select" ]],
   })
+  
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log('sechtiem"',searchTerm)
+      setDebouncedSearch(searchTerm)
+      // refetch()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
   const authorOptions = data?.author?.map((item: {
     id: string
     name: string
@@ -143,7 +180,16 @@ const ProductAuthorWidget = ({
     onError: () => {
       toast.error("Error removing author")
     },
-  })
+  });
+
+
+  const handleSearchToggle = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (isSearchOpen) {
+      setSearchTerm("");
+      setDebouncedSearch("");
+    }
+  };
   
   return (
     <>
@@ -177,34 +223,72 @@ const ProductAuthorWidget = ({
         </div>
       </div>
     </Container>
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <div>
+    <Container className="divide-y p-0 mt-4">
+        <div className="flex items-center justify-between px-6 py-4">
           <Heading level="h2">Select Author</Heading>
+          <div className="w-[320px] relative">
+            <Select
+              open={isSearchOpen}
+              onOpenChange={setIsSearchOpen}
+              onValueChange={handleValueChange}
+              value={selectedValue}
+              disabled={mutation.isPending}
+            >
+              <Select.Trigger>
+                <div className="flex items-center gap-2 w-full">
+                  <FiSearch className="text-ui-fg-muted" />
+                  <Select.Value placeholder="Search or select author..." />
+                </div>
+              </Select.Trigger>
+              
+              <Select.Content className="w-[320px]" side="bottom" align="end">
+                <div className="p-2 space-y-2">
+                  <div className="relative">
+                    <Input
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      placeholder="Search authors..."
+                      className="pr-8"
+                    />
+                    {searchTerm && (
+                      <button
+                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        onClick={() => setSearchTerm("")}
+                      >
+                        <FiX className="text-ui-fg-muted hover:text-ui-fg-base" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {(authorOptions ?? []).length === 0 ? (
+                      <div className="p-2 text-center text-ui-fg-muted">
+                        {data ? "No matches found" : "Loading..."}
+                      </div>
+                    ) : (
+                      (authorOptions ?? []).map((item) => (
+                        <Select.Item 
+                          key={item.value} 
+                          value={item.value}
+                          className="hover:bg-ui-bg-base-hover"
+                        >
+                          {item.label}
+                        </Select.Item>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </Select.Content>
+            </Select>
+
+            {mutation.isPending && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <span className="text-ui-fg-muted">Loading...</span>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="w-[256px]">
-      <Select 
-        onValueChange={handleValueChange} 
-        value={selectedValue}
-        disabled={mutation.isPending}
-      >
-        <Select.Trigger>
-          <Select.Value placeholder="Select an author" />
-        </Select.Trigger>
-        <Select.Content>
-          {options.map((item) => (
-            <Select.Item key={item.value} value={item.value}>
-              {item.label}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-      {mutation.isPending && <span>Loading...</span>}
-    </div>
-      </div>
-      
-    
-    </Container>
+      </Container>
 
     </>
   )

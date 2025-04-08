@@ -1,7 +1,7 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { TagSolid } from "@medusajs/icons"
-import { Container, Heading } from "@medusajs/ui"
-import { useQuery } from "@tanstack/react-query"
+import { Container, Heading, Input} from "@medusajs/ui"
+import { Query, useQuery } from "@tanstack/react-query"
 import { sdk } from "../../lib/sdk"
 import { useMemo, useState } from "react"
 import { Table } from "../../components/table"
@@ -11,6 +11,7 @@ import FocusModalWrapper from "../../components/focusModel"
 import {CreateForm} from "../../components/author/create-form"
 import { ActionPrompt } from "../../components/prompt"
 // import { ConstraintViolationException } from "@mikro-orm/core"
+import { useEffect } from "react"
 
 type AuthorsResponse = {
   author: {
@@ -27,21 +28,44 @@ type AuthorsResponse = {
 
 const AuthorPage = () => {
   
-const [currentPage, setCurrentPage] = useState(0)
+const [currentPage, setCurrentPage] = useState(0);
+const [searchTerm, setSearchTerm] = useState("")
+const [debouncedSearch, setDebouncedSearch] = useState("");
 const limit = 15
 const offset = useMemo(() => {
   return currentPage * limit
 }, [currentPage])
+const { data, refetch } = useQuery<AuthorsResponse>({
+  queryFn: () => {
+    const url = debouncedSearch
+      ? `/admin/authors/serch`
+      : `/admin/authors`
+    const query = debouncedSearch
+      ? { query: debouncedSearch }
+      : { limit, offset }
 
-const { data,refetch } = useQuery<AuthorsResponse>({
-  queryFn: () => sdk.client.fetch(`/admin/authors`, {
-    query: {
-      limit,
-      offset,
-    },
-  }),
-  queryKey: [["authors", limit, offset]],
+    return sdk.client.fetch(url, {
+      method: "GET",
+      query,
+    })
+  },
+  queryKey: debouncedSearch
+    ? [["authors-search", debouncedSearch]]
+    : [["authors", limit, offset]],
 })
+
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    console.log('sechtiem"',searchTerm)
+    setDebouncedSearch(searchTerm)
+    // refetch()
+  }, 500)
+  return () => clearTimeout(timer)
+}, [searchTerm])
+
+
+
 
 const handleEdit = (authorId: string) => {
   const authorToEdit = data?.author.find((author) => author.id === authorId);
@@ -114,7 +138,7 @@ const handleDelete = (authorId: string) => {
       <FocusModalWrapper {...focusModalState}/>
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading level="h2">Authors</Heading>
+          <Heading level="h2">SultanChand ki randiya</Heading>
         </div>
         <div>
         <ActionMenu groups={[
@@ -139,6 +163,11 @@ const handleDelete = (authorId: string) => {
         },
       ]} />
       </div>
+      <Input
+          placeholder="Search authors by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
       </div>
       <Table
   columns={[

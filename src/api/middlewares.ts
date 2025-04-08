@@ -15,6 +15,7 @@ import {
   import { publishWithUsSchema } from "./store/publish-with-us/validator";
 import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
 import rateLimit from "express-rate-limit";
+import { SerchAuthorqueryparamsSchema } from "./admin/authors/serch/validate"
 
 
 export const rateLimiter = rateLimit({
@@ -43,6 +44,27 @@ export const rateLimiter = rateLimit({
         method: "PUT",
         middlewares: [
           validateAndTransformBody(PostAdminUpdateAuthor),
+        ],
+      },
+      {
+        matcher: "/admin/authors/serch",
+        method: "GET",  
+        middlewares: [
+          validateAndTransformQuery(
+           SerchAuthorqueryparamsSchema,
+            {
+              defaults: [
+                "id",
+                "name",
+                "description",
+                "image",
+                "subText",
+                "products.*",
+              ],
+              isList: true,
+           }
+          ),
+        
         ],
       },
       {
