@@ -3,7 +3,7 @@ import {
     createWorkflow,
     WorkflowResponse,
   } from "@medusajs/framework/workflows-sdk";
-import {isbnType,UpdateIsbnType} from "../isbn/type";
+import {isbnType,UpdateIsbnType} from "./type";
 import { CreateIsbnStep } from "./isbnCreateStep";
 import { UpdateIsbnStep } from "./isbnUpdatetep";
 

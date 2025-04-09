@@ -84,6 +84,9 @@ module.exports = defineConfig({
 {
   resolve: "./src/modules/bookIsbn",
 },
+{
+  resolve: "./src/modules/titleCode",
+},
 
   ],
 

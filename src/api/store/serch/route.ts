@@ -2,6 +2,8 @@ import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http";
 import AuthorModuleService from "src/modules/author/service";
 import { Author_MODULE } from "src/modules/author";
 import {ISBN_MODULE} from "src/modules/bookIsbn";
+import {titleCode_MODULE} from "src/modules/titleCode";
+import TitleCodeService from "src/modules/titleCode/service";
 import BookISBNService from "src/modules/bookIsbn/service";
 
 
@@ -32,7 +34,16 @@ export const GET = async (
           return a.id
         })
         console.log('lunketoiopee',queries);
-       }
+       };
+
+       if(name === "title_code"){
+        const titleCodeService:TitleCodeService  = req.scope.resolve(titleCode_MODULE);
+        const titlecodes = await  titleCodeService.listTitleCodes({q:query});
+        console.log('lunketoiopee',titlecodes);
+        queries = titlecodes.map((a)=>{
+          return a.id
+        })
+       };
 
         const { data, metadata } = await productQueryService.graph({
           entity:name as string,

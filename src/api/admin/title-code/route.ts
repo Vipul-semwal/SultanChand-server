@@ -2,20 +2,21 @@ import {
     MedusaRequest,
     MedusaResponse,
   } from "@medusajs/framework/http";
-import { CreateIsbnWorkflow,UpdateIsbnWorkflow } from "src/workflows/isbn-create/isbnWorkflow";
-import { IsbnType,UpdateIsbnType } from "./validator";
+import { TitleCodeType,UpdateTitleCodeType } from "./validator";
+
+import { CreateTitleCodenWorkflow,UpdateTitleCodenWorkflow } from "src/workflows/titleCode/titleCodeworkFlow";
 
 
 
   export const POST = async (
-      req: MedusaRequest<IsbnType>,
+      req: MedusaRequest<TitleCodeType>,
       res: MedusaResponse
     ) => {
       // console.log("hhlelel",req.body)
       // res.json({ data: "jana" })
       // return
       console.log('ara ahi',req.validatedBody)
-      const { result,errors  } = await CreateIsbnWorkflow(req.scope)
+      const { result,errors  } = await CreateTitleCodenWorkflow(req.scope)
         .run({
           input: req.validatedBody,
           throwOnError:false
@@ -33,11 +34,11 @@ import { IsbnType,UpdateIsbnType } from "./validator";
     };
 
       export const PUT = async(
-        req: MedusaRequest<UpdateIsbnType>,
+        req: MedusaRequest<UpdateTitleCodeType>,
         res: MedusaResponse
       )=>{
         console.log('reqqqq',req.validatedBody)
-        const { result,errors  } = await UpdateIsbnWorkflow(req.scope)
+        const { result,errors  } = await UpdateTitleCodenWorkflow(req.scope)
         .run({
           input: req.validatedBody,
           throwOnError:false

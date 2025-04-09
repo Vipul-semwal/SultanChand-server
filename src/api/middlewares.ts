@@ -13,9 +13,10 @@ import {
   import uploadSchema from './store/upload/validator';
   import {specimenRequestSchema} from "./store/specimen/validator";
   import { publishWithUsSchema } from "./store/publish-with-us/validator";
-import { isbnSchema,updateIsbnSchema } from "./admin/isbn/validator"
+import {TitleCodeSchema,UpdateTitleCodeSchema } from "./admin/title-code/validator"
 import rateLimit from "express-rate-limit";
 import { SerchAuthorqueryparamsSchema } from "./admin/authors/serch/validate"
+import { isbnSchema,updateIsbnSchema } from './admin/isbn-create/validator';
 
 
 export const rateLimiter = rateLimit({
@@ -239,17 +240,17 @@ export const rateLimiter = rateLimit({
         ],
       },
       {
-        matcher: "/admin/isbn",
+        matcher: "/admin/title-code",
         method: "PUT",
         middlewares: [
-          validateAndTransformBody(updateIsbnSchema),
+          validateAndTransformBody(UpdateTitleCodeSchema),
         ],
       },
       {
-        matcher: "/admin/isbn",
+        matcher: "/admin/title-code",
         method: "POST",
         middlewares: [
-          validateAndTransformBody(isbnSchema),
+          validateAndTransformBody(TitleCodeSchema),
         ],
       },
       {
