@@ -138,7 +138,7 @@ const handleDelete = (authorId: string) => {
       <FocusModalWrapper {...focusModalState}/>
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading level="h2">SultanChand ki randiya</Heading>
+          <Heading level="h2">Authors</Heading>
         </div>
         <div>
         <ActionMenu groups={[
