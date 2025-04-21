@@ -10,6 +10,8 @@ import {
 import author from "src/modules/author"
 import { UpdateAuthorWorkflow } from "src/workflows/AuthorWorkFlow";
 import { updateAuthorStepType } from "src/workflows/create-author";
+import { Author_MODULE } from "src/modules/author"
+import AuthorModuleService from "src/modules/author/service"
   
   type PostAdminCreateAuthorType = z.infer<typeof PostAdminCreateAuthor>
   
@@ -54,32 +56,52 @@ import { updateAuthorStepType } from "src/workflows/create-author";
     
   };
 
-   export async function PUT(
-      req: MedusaRequest,
-      res: MedusaResponse
-    ) {
-      try {
-        console.log('reqqqqupdated',req.validatedBody)
-           const { result,errors  } = await   UpdateAuthorWorkflow (req.scope)
-           .run({
-             input: req.validatedBody as updateAuthorStepType,
-             throwOnError:false
-           })
+  //  export async function PUT(
+  //     req: MedusaRequest<updateAuthorStepType>,
+  //     res: MedusaResponse
+  //   ) {
+  //     try {
+  //       console.log('reqqqqupdated',req.validatedBody)
+  //          const { result,errors  } = await   UpdateAuthorWorkflow (req.scope)
+  //          .run({
+  //            input: req.validatedBody as updateAuthorStepType,
+  //            throwOnError:false
+  //          })
        
-           if (errors.length) {
-             console.log('error',errors)
-             return res.json({
-               errors: errors.map((error) => error.error),
-             }).status(500)
-         }
+  //          if (errors.length) {
+  //            console.log('error',errors)
+  //            return res.json({
+  //              errors: errors.map((error) => error.error),
+  //            }).status(500)
+  //        }
          
-         res.json({ data: result })
+  //        res.json({ data: result })
     
-      } catch (error) {
-        console.error("Error updating author:", error);
-        res.status(500).json({
-          message: "Failed to updated data",
-          error: error.message,
-        });
-      }
-    };
+  //     } catch (error) {
+  //       console.error("Error updating author:", error);
+  //       res.status(500).json({
+  //         message: "Failed to updated data",
+  //         error: error.message,
+  //       });
+  //     }
+  //   };
+
+     export const PUT = async(
+            req: MedusaRequest<updateAuthorStepType>,
+            res: MedusaResponse
+          )=>{
+            console.log('reqqqq',req.validatedBody)
+         try {
+          const AuthorService:AuthorModuleService = req.scope.resolve(Author_MODULE);
+          const AuthorData = await AuthorService.updateAuthors(req.validatedBody)
+        
+        res.json({ data: AuthorData,sucsess:true,message:"updated successfully"  })
+         } catch (error) {
+          console.error("Error Updating Author:", error);
+          return res.status(500).json({
+            errors: "Error Updating data",
+            success: false,
+            message: "Something went wrong",
+          });
+         }
+          }
