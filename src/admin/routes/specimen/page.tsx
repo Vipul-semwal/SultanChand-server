@@ -12,6 +12,8 @@ import { ActionPrompt } from "../../components/prompt"
 import { useDeleteWithPrompt } from "../../hooks/useDeleteWithPrompt"
 // import { ConstraintViolationException } from "@mikro-orm/core"
 import { useNavigate } from "react-router-dom"
+import { BiImport } from "react-icons/bi";
+import { BACKEND_URl } from "../../env"
 
 type AuthorsResponse = {
   data: {
@@ -48,6 +50,7 @@ console.log('diditeradevardiwana:',data);
 
 
 
+
 // Focus Model open state
 // Delete Author
 const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,handleDelete} =  useDeleteWithPrompt("specimenRequest", refetch);
@@ -65,10 +68,13 @@ const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,
               onsuccess={onsuccess}
               queryKey={["specimenRequest", limit, offset]}
             />
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center  px-6 py-4">
         <div>
           <Heading level="h2">Specimen Requests</Heading>
         </div>
+        <div className="mx-5">
+            <a href={`${BACKEND_URl}/admin/specimen-download`} className="flex flex items-center justify-between"><BiImport/>download</a>
+          </div>
         <div>
       </div>
       </div>

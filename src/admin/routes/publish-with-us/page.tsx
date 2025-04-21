@@ -1,6 +1,6 @@
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { Container, Heading } from "@medusajs/ui"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery,useMutation } from "@tanstack/react-query"
 import { sdk } from "../../lib/sdk"
 import { useMemo, useState } from "react"
 import { Table } from "../../components/table"
@@ -11,6 +11,9 @@ import { FaBookBible } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom"
 import { ActionPrompt } from "../../components/prompt"
 import { useDeleteWithPrompt } from "../../hooks/useDeleteWithPrompt"
+import { BiImport } from "react-icons/bi";
+import { BACKEND_URl } from "../../env";
+
 
 type AuthorsResponse = {
   data: {
@@ -48,6 +51,8 @@ console.log('diditeradevardiwana:',data);
 
 
 // Focus Model open state
+// In your component
+
 
 const [focusModalState, setFocusModalState] = useState({
   Child: null as React.ReactNode,
@@ -59,6 +64,7 @@ const [focusModalState, setFocusModalState] = useState({
 
 // Delete logic
 const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,handleDelete} =  useDeleteWithPrompt("publish-with-us", refetch);
+
 
   return (
     <Container className="divide-y p-0">
@@ -74,9 +80,14 @@ const {isDeletePromptOpen,setDeletePromptOpen,deleteData,dataToDelete,onsuccess,
               onsuccess={onsuccess}
               queryKey={["publishWithus", limit, offset]}
             />
-      <div className="flex items-center justify-between px-6 py-4">
-        <div>
-          <Heading level="h2">Specimen Requests</Heading>
+      <div className="flex items-center justify-between ">
+        <div className="flex flex items-center justify-between px-6 py-4 items-center">
+         <div>
+         <Heading level="h2">Publish With us</Heading>
+         </div>
+          <div className="mx-5">
+            <a href={`${BACKEND_URl}/admin/publish-with-us-downlod`} className="flex flex items-center justify-between"><BiImport/>download</a>
+          </div>
         </div>
         <div>
       </div>

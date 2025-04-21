@@ -32,7 +32,7 @@ import {
 
 
   export const UpdateAuthorWorkflow = createWorkflow(
-    "update-author",
+    "update-author-step",
     (input: updateAuthorStepType) => {
       console.log('in the updateworkflwo:',input);
       const updatedAuthor = UpdateAuthorStep(input)
