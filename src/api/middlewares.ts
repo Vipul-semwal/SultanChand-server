@@ -247,7 +247,7 @@ export const rateLimiter = rateLimit({
         ],
       },
       {
-        matcher: "/admin/title-code",
+        matcher: "/admin/title-code", 
         method: "POST",
         middlewares: [
           validateAndTransformBody(TitleCodeSchema),

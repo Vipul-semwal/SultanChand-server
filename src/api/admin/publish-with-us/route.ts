@@ -26,7 +26,7 @@ export const GET = async (
         limit: metadata?.take || 10, 
         offset: metadata?.skip || 0, 
         sucess:true
-      })
+      });
    } catch (error) {
        console.log('error',error)
        return res.status(400).json({ error: error.message,message:"something went wrong" });

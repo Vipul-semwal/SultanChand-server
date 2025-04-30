@@ -66,8 +66,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       };
     });
 
-    // Generate the Excel file as a buffer
-    const buffer = await workbook.xlsx.writeBuffer();
 
     // Set headers so the browser treats the output as an Excel file download
     res.setHeader(
