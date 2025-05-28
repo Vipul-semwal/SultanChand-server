@@ -186,7 +186,7 @@ export const rateLimiter = rateLimit({
         method: "POST",
         middlewares: [
         validateAndTransformBody(uploadSchema),
-        rateLimiter
+        rateLimiter 
         
         ],
       },

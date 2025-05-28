@@ -8,7 +8,7 @@ import { ReviewInputTypes } from "./type";
 import { Modules } from "@medusajs/framework/utils";
 
 export const CreateReviewStep = createStep(
-    "create-Review-step",
+    "createReviewstep",
     async (input: ReviewInputTypes, { container }) => {
         const ReviewModuleService: ReviewModuleService = container.resolve(
             Review_MODULE

@@ -6,8 +6,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const query = req.scope.resolve("query");
     // For export, you can decide whether to export a single record based on req.params.id
     // or a list of records. Here we'll use req.params.id as a filter.
-    const { id } = req.params;
-    console.log("Exporting specimen request for id:", id);
 
     // Query the specimen_request entity with the desired fields.
     const { data } = await query.graph({
@@ -23,7 +21,6 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         "school_address",
         // Add any additional fields if required
       ],
-      filters: { id: [id] } // Adjust this filter if you want to export multiple records.
     });
 
     // Create an Excel workbook and worksheet
