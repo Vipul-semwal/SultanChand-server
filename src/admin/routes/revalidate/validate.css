@@ -1,0 +1,45 @@
+/* RevalidateButton.css */
+.revalidate-container {
+  display: inline-block;
+}
+
+.revalidate-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.revalidate-btn:hover {
+  background-color: #45a049;
+}
+
+.revalidate-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.revalidate-btn.loading {
+  background-color: #2e7d32;
+}
+
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

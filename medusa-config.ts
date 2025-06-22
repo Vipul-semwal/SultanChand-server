@@ -21,6 +21,7 @@ module.exports = defineConfig({
   
   },
   modules: [
+    
     {
       resolve: "@medusajs/medusa/file",
       options: {

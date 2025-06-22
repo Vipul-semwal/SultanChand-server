@@ -8,7 +8,7 @@ import {
  
 
 export const CreateReviewWorkflow = createWorkflow(
-    "CreatReviewWorkFlow",
+    "Creat_Review_WorkFlow",
     (Input:ReviewInputTypes)=>{
         console.log('in the workflow',Input);
     const CreateStep = CreateReviewStep(Input);

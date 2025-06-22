@@ -16,7 +16,7 @@ export const GET = async (
     
         const {name,query} = req.validatedQuery;
         let queries:Array<string> = []
-        console.log('hankiikahal',name,query)
+        console.log('-----------------------------------------------------------------------------------------------------------',name,query)
         
       
         const authorcontentService:AuthorModuleService  = req.scope.resolve(Author_MODULE)

@@ -8,7 +8,7 @@ import { Modules } from "@medusajs/framework/utils";
 import TitleCodeService from '../../modules/titleCode/service';
 
 export const CreateTitleCodeStep = createStep(
-    "create_title_code_step",
+    "Create_title_code_step",
     async (input:TitleCodeType,  { container }) => {
         const titelCodeService:TitleCodeService = container.resolve(titleCode_MODULE);
         const titleCodeData = await titelCodeService.createTitleCodes(input);
