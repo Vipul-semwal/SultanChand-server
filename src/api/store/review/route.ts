@@ -9,29 +9,31 @@ export interface ReviewQueryParams {
   offset: number;
   limit: number;
 }
-export const POST = async(
-    req:MedusaRequest<ReviewSchemaType>,
-    res:MedusaResponse
-)=>{
-    console.log('in the route', req.validatedBody);
-     const { result,errors  } = await CreateReviewWorkflow(req.scope)
-          .run({
-            input: {
-                ...req.validatedBody,
-                product_id: req.validatedBody.prouduct_id,
-            },
-            throwOnError:false
-          })
-      
-          if (errors.length) {
-            console.log('error',errors)
-            return res.json({
-              errors: errors.map((error) => error.error),
-            }).status(500)
-        }
-        
-        res.json({ data: result })
+export const POST = async (
+  req: MedusaRequest<ReviewSchemaType>,
+  res: MedusaResponse
+) => {
+  console.log("in the route", req.validatedBody);
+
+  const { result, errors } = await CreateReviewWorkflow.run({
+    input: {
+      ...req.validatedBody,
+      product_id: req.validatedBody.prouduct_id, // 👈 also typo in "prouduct_id"?
+    },
+    container: req.scope, // ✅ this is required
+    throwOnError: false,
+  });
+
+  if (errors.length) {
+    console.log("error", errors);
+    return res.status(500).json({
+      errors: errors.map((error) => error.error),
+    });
+  }
+
+  res.json({ data: result });
 };
+
 
 export const GET = async(
   req:MedusaRequest,

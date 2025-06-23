@@ -8,48 +8,48 @@ import { CreateTitleCodenWorkflow,UpdateTitleCodenWorkflow } from "src/workflows
 
 
 
-  export const POST = async (
-      req: MedusaRequest<TitleCodeType>,
-      res: MedusaResponse
-    ) => {
-      // console.log("hhlelel",req.body)
-      // res.json({ data: "jana" })
-      // return
-      console.log('ara ahi',req.validatedBody)
-      const { result,errors  } = await CreateTitleCodenWorkflow(req.scope)
-        .run({
-          input: req.validatedBody,
-          throwOnError:false
-        })
-    
-        if (errors.length) {
-          console.log('error',errors)
-          return res.json({
-            errors: errors.map((error) => error.error),
-            sucsess:false,message:"something went wrong"
-          }).status(500)
-      }
-      
-      res.json({ data: result,sucsess:true,message:"created successfully" })
-    };
+ export const POST = async (
+  req: MedusaRequest<TitleCodeType>,
+  res: MedusaResponse
+) => {
+  const { result, errors } = await CreateTitleCodenWorkflow.run({
+    input: req.validatedBody,
+    container: req.scope, // 🟢 Correct way to inject container
+    throwOnError: false,
+  });
 
-      export const PUT = async(
-        req: MedusaRequest<UpdateTitleCodeType>,
-        res: MedusaResponse
-      )=>{
-        console.log('reqqqq',req.validatedBody)
-        const { result,errors  } = await UpdateTitleCodenWorkflow(req.scope)
-        .run({
-          input: req.validatedBody,
-          throwOnError:false
-        })
+  if (errors.length) {
+    return res.status(500).json({
+      errors: errors.map((e) => e.error),
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+
+  res.json({ data: result, success: true, message: "Created successfully" });
+};
+
+    export const PUT = async (
+  req: MedusaRequest<UpdateTitleCodeType>,
+  res: MedusaResponse
+) => {
+  const { result, errors } = await UpdateTitleCodenWorkflow.run({
+    input: req.validatedBody,
+    container: req.scope, // 🟢 Must inject container here
+    throwOnError: false,
+  });
+
+  if (errors.length) {
+    return res.status(500).json({
+      errors: errors.map((e) => e.error),
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+
+  res.json({ data: result, success: true, message: "Updated successfully" });
+};
+
+
     
-        if (errors.length) {
-          console.log('error',errors)
-          return res.json({
-            errors: errors.map((error) => error.error),
-          }).status(500)
-      }
-      
-      res.json({ data: result,sucsess:true,message:"created successfully"  })
-      }
+     
