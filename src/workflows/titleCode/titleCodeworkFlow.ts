@@ -10,7 +10,7 @@ import { UpdateTitleCodeStep } from "./titleCodeUpdate";
 
 
 export const CreateTitleCodenWorkflow = createWorkflow(
-    "create-title-workFlow",
+    "Create-tc-workflow",
     (Input:TitleCodeType)=>{
         console.log('in the workflow',Input);
         const CreateStep = CreateTitleCodeStep(Input);
@@ -18,7 +18,7 @@ export const CreateTitleCodenWorkflow = createWorkflow(
     });
 
     export const UpdateTitleCodenWorkflow = createWorkflow(
-      "update-title-workFlow",
+      "update-tc-workFlow",
       (Input:UpdateTitleCodeType)=>{
         console.log('in the workflow',Input);
         const UpdateStep = UpdateTitleCodeStep(Input);
