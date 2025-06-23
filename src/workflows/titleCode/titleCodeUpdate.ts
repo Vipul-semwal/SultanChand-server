@@ -8,7 +8,7 @@ import TitleCodeService from '../../modules/titleCode/service';
 import  {UpdateTitleCodeType} from "./type";
 
 export const UpdateTitleCodeStep = createStep(
-    "Update_title_code_step",
+    "update-title-code",
     async (input:UpdateTitleCodeType,  { container }) => {
         const titelCodeService:TitleCodeService = container.resolve(titleCode_MODULE);
         const titleCodeData = await titelCodeService.updateTitleCodes(input);
