@@ -68,6 +68,27 @@ export const rateLimiter = rateLimit({
         
         ],
       },
+        {
+        matcher: "/store/authors/search",
+        method: "GET",  
+        middlewares: [
+          validateAndTransformQuery(
+           SerchAuthorqueryparamsSchema,
+            {
+              defaults: [
+                "id",
+                "name",
+                "description",
+                "image",
+                "subText",
+                "products.*",
+              ],
+              isList: true,
+           }
+          ),
+        
+        ],
+      },
       {
         matcher: "/admin/authors/link",
         method: "POST",
