@@ -17,6 +17,8 @@ import {TitleCodeSchema,UpdateTitleCodeSchema } from "./admin/title-code/validat
 import rateLimit from "express-rate-limit";
 import { SerchAuthorqueryparamsSchema } from "./admin/authors/serch/validate"
 import { isbnSchema,updateIsbnSchema } from './admin/isbn-create/validator';
+import {priorityAuthorSchema,UpdatepriorityAuthorSchema} from "./admin/priority-author/validate";
+
 
 
 export const rateLimiter = rateLimit({
@@ -101,6 +103,21 @@ export const rateLimiter = rateLimit({
         method: "DELETE",
         middlewares: [
           validateAndTransformBody(linkAuthor),
+        ],
+      },
+
+      {
+        matcher: "/admin/priority-author",
+        method: "POST",
+        middlewares: [
+          validateAndTransformBody(priorityAuthorSchema),
+        ],
+      },
+       {
+        matcher: "/admin/priority-author",
+        method: "PATCH",
+        middlewares: [
+          validateAndTransformBody(UpdatepriorityAuthorSchema),
         ],
       },
       {
