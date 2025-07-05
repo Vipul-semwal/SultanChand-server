@@ -89,7 +89,7 @@ module.exports = defineConfig({
   resolve: "./src/modules/titleCode",
 },
 {
-  resolve: "./src/modules/priorityAuthor",
+  resolve: "./src/modules/priority_author",
 },
   ],
 

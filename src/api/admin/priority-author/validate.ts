@@ -14,3 +14,4 @@ export const UpdatepriorityAuthorSchema = z.object({
 });
 
 export type PriorityAuthorFormData = z.infer<typeof priorityAuthorSchema>;
+export type UpdatePriorityAuthorFormData = z.infer<typeof UpdatepriorityAuthorSchema>;

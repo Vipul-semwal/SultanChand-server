@@ -6,90 +6,46 @@ import { sdk } from "../../lib/sdk"
 import { useMemo, useState } from "react"
 import { Table } from "../../components/table"
 import { ActionMenu } from "../../components/action-menu"
-import { Plus,Pencil,Trash} from "@medusajs/icons"
+import { Pencil,Trash} from "@medusajs/icons"
 import FocusModalWrapper from "../../components/focusModel"
-import {CreateForm} from "../../components/author/create-form"
 import { ActionPrompt } from "../../components/prompt"
 // import { ConstraintViolationException } from "@mikro-orm/core"
-import { useEffect } from "react"
 import { MdLowPriority } from "react-icons/md";
 import { toast } from "@medusajs/ui"
+import {
+  Select,
+} from "@medusajs/ui";
+import PrioritySelect from "./prioritySelect"
 
 
-type AuthorsResponse = {
-  author: {
-    id: string
-    name: string
-    description: string
-    image: string
-    subText: string
+
+type AuthorPriorityItem = {
+  data:{
+    id: string;
+  image: string;
+  name: string;
+  priority: number;
   }[]
-  count: number
-  limit: number
-  offset: number
-}
+};
 
 const AuthorPage = () => {
   
 const [currentPage, setCurrentPage] = useState(0);
-const [searchTerm, setSearchTerm] = useState("")
-const [debouncedSearch, setDebouncedSearch] = useState("");
 const limit = 15
 const offset = useMemo(() => {
   return currentPage * limit
 }, [currentPage])
-const { data, refetch } = useQuery<AuthorsResponse>({
+const { data, refetch } = useQuery<AuthorPriorityItem>({
   queryFn: () => {
-    const url = debouncedSearch
-      ? `/admin/authors/serch`
-      : `/admin/authors`
-    const query = debouncedSearch
-      ? { query: debouncedSearch }
-      : { limit, offset }
+    const url = "/admin/priority-author"
 
     return sdk.client.fetch(url, {
       method: "GET",
-      query,
     })
   },
-  queryKey: debouncedSearch
-    ? [["authors-search", debouncedSearch]]
-    : [["authors", limit, offset]],
+  queryKey:["priority-author"]
 })
 
-
-useEffect(() => {
-  const timer = setTimeout(() => {
-    console.log('sechtiem"',searchTerm)
-    setDebouncedSearch(searchTerm)
-    // refetch()
-  }, 500)
-  return () => clearTimeout(timer)
-}, [searchTerm])
-
-
-
-
-const handleEdit = (authorId: string) => {
-  const authorToEdit = data?.author.find((author) => author.id === authorId);
-  if (!authorToEdit) return;
-
-  setFocusModalState({
-    ...focusModalState,
-    Child: (
-      <CreateForm
-        edit={true}
-        author={authorToEdit}
-        CallBack={() => {
-          refetch();
-          focusModalState.setOpen(false);
-        }}
-      />
-    ),
-    saveButtonOnClick: () => alert("save"),
-    open: true,
-  });
-};
 
 // Focus Model open state
 
@@ -101,12 +57,11 @@ const [focusModalState, setFocusModalState] = useState({
   setOpen: (val: boolean) => setFocusModalState((prev) => ({ ...prev, open: val })),
 });
 
-// Delete Author
 const [isDeletePromptOpen, setDeletePromptOpen] = useState(false);
 const [authorToDelete, setAuthorToDelete] = useState<string | null>(null);
 const deleteAuthor = async (authorId: string) => {
   try {
-   const res =  await sdk.client.fetch<Promise<{message:string}>>(`/admin/authors/${authorId}`, { method: "DELETE" });
+   const res =  await sdk.client.fetch<Promise<{message:string}>>(`/admin/priority-author/${authorId}`, { method: "DELETE" });
    return {...res,status:200}
     
   } catch (error) {
@@ -124,28 +79,15 @@ const handleDelete = (authorId: string) => {
   setDeletePromptOpen(true); // Open the delete confirmation prompt
 };
 
-const addToPriority = async (authorId:string)=>{
-    try {
-   const res =  await sdk.client.fetch<Promise<{message:string,error:string}>>(`/admin/priority-author`, { method: "POST",body:{author_id:authorId} });
-   console.log('data came:',res)
-   toast.success(res.message);
-   return {...res,status:200}
-    
-  } catch (error:any) {
-    console.error(error.message);
-    toast.error(error.message);
-    return {status:500,message:'something went wrong'}
-  }
-}
 
   return (
     <Container className="divide-y p-0">
       <ActionPrompt 
         open={isDeletePromptOpen}
         onOpenChange={setDeletePromptOpen}
-        title="Delete Author"
-        description="Are you sure you want to delete this author? This action cannot be undone."
-        mutationKey="delete-author"
+        title="remove Author"
+        description="Are you sure you want to remove this author?"
+        mutationKey="remove-author"
         mutationFn={deleteAuthor} 
         mutationArgs={authorToDelete}
         actionLabel="Delete"
@@ -155,42 +97,25 @@ const addToPriority = async (authorId:string)=>{
       <FocusModalWrapper {...focusModalState}/>
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading level="h2">Authors</Heading>
+          <Heading level="h2">Priority</Heading>
         </div>
         <div>
-        <ActionMenu groups={[
-        {
-          actions: [
-            {
-              icon: <Plus />,
-              label: "create",
-              onClick: () => {
-                setFocusModalState({
-                  ...focusModalState,
-                  Child: <CreateForm CallBack={() => {
-                    refetch();
-                    focusModalState.setOpen(false);
-                  }} />,
-                  saveButtonOnClick: () => alert("save"),
-                  open: true,
-                });
-              },
-            },
-          ],
-        },
-      ]} />
       </div>
-      <Input
-          placeholder="Search authors by name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
       </div>
       <Table
   columns={[
-    {
-      key: "id",
-      label: "#",
+    // {
+    //   key: "id",
+    //   label: "#",
+    // },
+     {
+      key: "priority",
+      label: "priority",
+        render: (value: unknown) => {
+        return (
+         <p>{value as string}</p>
+        )
+      }
     },
     {
       key: "name",
@@ -227,7 +152,7 @@ const addToPriority = async (authorId:string)=>{
                     icon: <Pencil />,
                     label: "Edit",
                     onClick: () => {
-                      handleEdit(value as string)
+                    //   handleEdit(value as string)
                     },
                   },
                   {
@@ -237,25 +162,31 @@ const addToPriority = async (authorId:string)=>{
                       handleDelete(value as string)
                     },
                   },
-                  {
-                    icon: <MdLowPriority />
-,
-                    label: "Add to Priority",
-                    onClick: () => {
-                      addToPriority(value as string)
-                    },
-                  },
                 ],
               },
             ]}
           />
         )
       }
+    },
+     {
+      key: "id",
+      label: "Change priority",
+     render: (value: unknown,) => {
+    return (
+      <PrioritySelect
+      num={data?.data.length || 0}
+    authorId={value as string}
+    currentPriority={0}
+    refetch={refetch}
+  />
+    )
+  },
     }
   ]}
-  data={data?.author || []}
-  pageSize={data?.limit || limit}
-  count={data?.count || 0}
+  data={data? data.data : []}
+  pageSize={ limit}
+  count={ 0}
   currentPage={currentPage}
   setCurrentPage={setCurrentPage}
 />
@@ -264,8 +195,8 @@ const addToPriority = async (authorId:string)=>{
 }
 
 export const config = defineRouteConfig({
-  label: "Authors",
-  icon: TagSolid,
+  label: "Priority",
+  icon: MdLowPriority,
 })
 
 export default AuthorPage
