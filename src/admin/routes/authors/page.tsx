@@ -14,6 +14,7 @@ import { ActionPrompt } from "../../components/prompt"
 import { useEffect } from "react"
 import { MdLowPriority } from "react-icons/md";
 import { toast } from "@medusajs/ui"
+import { useQueryClient } from '@tanstack/react-query';
 
 
 type AuthorsResponse = {
@@ -124,11 +125,13 @@ const handleDelete = (authorId: string) => {
   setDeletePromptOpen(true); // Open the delete confirmation prompt
 };
 
+const queryClient = useQueryClient();
 const addToPriority = async (authorId:string)=>{
     try {
    const res =  await sdk.client.fetch<Promise<{message:string,error:string}>>(`/admin/priority-author`, { method: "POST",body:{author_id:authorId} });
    console.log('data came:',res)
    toast.success(res.message);
+   queryClient.invalidateQueries({ queryKey: ['priority-author'] });
    return {...res,status:200}
     
   } catch (error:any) {
