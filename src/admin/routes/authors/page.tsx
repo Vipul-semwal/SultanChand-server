@@ -15,6 +15,8 @@ import { useEffect } from "react"
 import { MdLowPriority } from "react-icons/md";
 import { toast } from "@medusajs/ui"
 import { useQueryClient } from '@tanstack/react-query';
+import AlphabetFilter from "../../components/alphabetFilter/alphabetFilter";
+import { filterAuthorsByLetter } from "../../lib/filterAuthor"
 
 
 type AuthorsResponse = {
@@ -35,17 +37,20 @@ const AuthorPage = () => {
 const [currentPage, setCurrentPage] = useState(0);
 const [searchTerm, setSearchTerm] = useState("")
 const [debouncedSearch, setDebouncedSearch] = useState("");
+ const [filterLetter, setFilterLetter] = useState<string>('');
 const limit = 15
+
 const offset = useMemo(() => {
   return currentPage * limit
 }, [currentPage])
+// both logic for search and filter by words can be same serch endpoint wiht just initial aplhabet for filter so can  get those!!
 const { data, refetch } = useQuery<AuthorsResponse>({
   queryFn: () => {
-    const url = debouncedSearch
+    const url = debouncedSearch || filterLetter
       ? `/admin/authors/serch`
       : `/admin/authors`
-    const query = debouncedSearch
-      ? { query: debouncedSearch }
+    const query = debouncedSearch || filterLetter
+      ? { query: debouncedSearch || filterLetter }
       : { limit, offset }
 
     return sdk.client.fetch(url, {
@@ -53,9 +58,12 @@ const { data, refetch } = useQuery<AuthorsResponse>({
       query,
     })
   },
-  queryKey: debouncedSearch
-    ? [["authors-search", debouncedSearch]]
-    : [["authors", limit, offset]],
+  queryKey:debouncedSearch
+  ? [["authors-search", debouncedSearch]]
+  : filterLetter
+    ? [["authors-filter", filterLetter, limit, offset]]
+    : [["authors", limit, offset]]
+    
 })
 
 
@@ -69,7 +77,8 @@ useEffect(() => {
 }, [searchTerm])
 
 
-
+// the author data
+const authorlist = filterLetter?filterAuthorsByLetter(data?.author || [],filterLetter):data?.author
 
 const handleEdit = (authorId: string) => {
   const authorToEdit = data?.author.find((author) => author.id === authorId);
@@ -139,7 +148,21 @@ const addToPriority = async (authorId:string)=>{
     toast.error(error.message);
     return {status:500,message:'something went wrong'}
   }
-}
+};
+
+
+// filter alphabet
+
+  const handleLetterSelect = (letter: string) => {
+    setSearchTerm("");
+    setDebouncedSearch("")
+    setFilterLetter(letter);
+    console.log('Selected Letter:', letter);
+
+    // Call your API or filtering logic here
+  };
+
+  const clearFilter = () => setFilterLetter('');
 
   return (
     <Container className="divide-y p-0">
@@ -186,8 +209,27 @@ const addToPriority = async (authorId:string)=>{
       <Input
           placeholder="Search authors by name..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) =>{
+            clearFilter();
+             setSearchTerm(e.target.value);
+          }}
         />
+
+         <div className="p-4">
+      <AlphabetFilter
+        selectedLetter={filterLetter}
+        onSelect={handleLetterSelect}
+      />
+
+      {filterLetter && (
+        <button
+          onClick={clearFilter}
+          className="mt-4 ml-4 px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Clear Filter
+        </button>
+      )}
+    </div>
       </div>
       <Table
   columns={[
@@ -256,7 +298,7 @@ const addToPriority = async (authorId:string)=>{
       }
     }
   ]}
-  data={data?.author || []}
+  data={authorlist || []}
   pageSize={data?.limit || limit}
   count={data?.count || 0}
   currentPage={currentPage}
