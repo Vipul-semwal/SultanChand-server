@@ -39,8 +39,14 @@ const ProductIsbnWidget = ({
     })
   
     const isbnData = res as unknown as  productType
-    const bookIsbn = isbnData?.product?.isbn;
-    console.log('wakwakwak',bookIsbn);
+    // importent!!! this is a bug not truly but it is, somtiems it's a array of objects may be got created multipl times somehwere while testing qucick fix is just fetch  fist index values
+   const bookIsbn = (() => {
+  const isbn = isbnData?.product?.isbn;
+  if (!isbn) return undefined; // undefined is fine
+  return Array.isArray(isbn) ? isbn[0] : isbn;
+})();
+
+    console.log('we found bookisbn  ',bookIsbn);
 return (
     <Container>
       <Heading >Product isbn</Heading>
@@ -49,7 +55,7 @@ return (
        </Container>
     </Container>
 )
-  };
+  };  
 
 
   export const config = defineWidgetConfig({
