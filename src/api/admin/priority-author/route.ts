@@ -4,7 +4,7 @@ import {
   } from "@medusajs/framework/http";
   import {  PirorityAuthor_MODULE} from "src/modules/priority_author";
   import PriorityAuthorService from 'src/modules/priority_author/service';
-  import { PriorityAuthorFormData,UpdatePriorityAuthorFormData } from "./validate";
+  import { PriorityAuthorFormData,UPriorityAuthorFormData  } from "./validate";
   import { shuffleAuthors } from "src/admin/lib/utils";
 
 
@@ -12,15 +12,13 @@ export const POST = async (
     req: MedusaRequest<PriorityAuthorFormData>,
     res: MedusaResponse
   ) =>{
-    console.log('priotydata:',req.validatedBody);
+    
     try {
         const query = req.scope.resolve("query");
          const { data, metadata } = await query.graph({
       entity: "priority_author",
       fields: ["id", "authors", "keys"],
     });
-
-    console.log('query:', data)
      const priorityAuthorService:PriorityAuthorService = req.scope.resolve( PirorityAuthor_MODULE)
         // Ensure data[0] is defined and has the expected structure
         if (
@@ -35,9 +33,9 @@ export const POST = async (
             return res.status(400).json({ error: "Priority author list exceed", message: "Priority author list exceed, max 10" });
         }
 
-        if(data.length < 1){
+        if(data.length > 1){
             console.log("zero authors found, creating new priority author");
-        const result = await priorityAuthorService.createPriorityAuthors({authors:{list:[{author_id :req.validatedBody.author_id,priority: data.length + 1}]},key:"global-key"});
+        const result = await priorityAuthorService.createPriorityAuthors({atuhors:{list:[{author_id :req.validatedBody.author_id,priority: data.length + 1}]},key:"global-key"});
         console.log("result", result);
         return res.json({success:true,message:"added to priority list",result});
         };
@@ -46,19 +44,9 @@ export const POST = async (
   ? data[0].authors.list
   : []
 
-const newAuthorId = req.validatedBody.author_id;
-
-const authorExists = authorList.some(author => author.author_id === newAuthorId);
-
-if (authorExists) {
-  return res.status(400).json({
-    message: "Author already exists in priority list",
-    error: "same"
-  });
-}
         const result = await priorityAuthorService.updatePriorityAuthors({
             id: data[0]?.id || "",
-            authors: {list:[...authorList, {author_id: newAuthorId, priority: authorList.length + 1}]},
+            authors: {list:[...authorList, {author_id: req.validatedBody.author_id, priority:authorList.length+ 1}]},
             key: "global-key"
         });
         console.log("result", result);
@@ -67,7 +55,7 @@ if (authorExists) {
         console.error('Error creating priority author:', error);
         return res.status(400).json({ error: error.message, message: "Something went wrong" });
     }   
-  }
+  };
 
 export const GET = async (
   req: MedusaRequest,
@@ -97,7 +85,7 @@ export const GET = async (
     // 3. Fetch the authors by those IDs
     const { data: authors } = await query.graph({
       entity: "author",
-      fields: ["id", "image", "name","subText","description"],
+      fields: ["id", "image", "name"],
       filters: { id: [...sortedAuthorIds] },
     });
 
@@ -115,7 +103,7 @@ export const GET = async (
         };
       })
       .filter(Boolean); // Remove any missing authors
-  console.log('data')
+
     return res.json({ data: finalSortedList });
   } catch (error) {
     console.error("Error fetching priority authors:", error);
@@ -126,14 +114,11 @@ export const GET = async (
   }
 };
 
-
-
 export const DELETE = async (
   req: MedusaRequest<{ id: string }>,
   res: MedusaResponse
 ) => {
   try {
-    console.log('dlet:',req.params.id)
     const query = req.scope.resolve("query");
     const priorityAuthorService: PriorityAuthorService = req.scope.resolve(PirorityAuthor_MODULE);
 
@@ -185,11 +170,10 @@ export const DELETE = async (
 };
 
 export const PATCH = async (
-    req: MedusaRequest<UpdatePriorityAuthorFormData>,
+    req: MedusaRequest<UPriorityAuthorFormData>,
     res: MedusaResponse
   ) => {
     try {
-      console.log('data:',req.validatedBody )
          const query = req.scope.resolve("query");
       const { data, metadata } = await query.graph({
         entity: "priority_author",

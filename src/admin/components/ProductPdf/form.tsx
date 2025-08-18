@@ -78,7 +78,7 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
       const url = isEditMode ? `/admin/extralinks` : "/admin/extralinks";
       const method = isEditMode ? "PUT" : "POST";
      
-      console.log('Data to be sent:', data);
+      console.log('Data to be sent:', data);  
       const response: any = await sdk.client.fetch(url, {
         method,
         body: data,
