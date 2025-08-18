@@ -25,7 +25,8 @@ type PdfFormProps = {
 };
 
 const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProps) => {
-  // console.log('form', initialData, isEditMode);
+  console.log('diljalne kibaat karte hoon@')
+  console.log('form', initialData, isEditMode, product_id);
 
   const form = useForm<z.infer<typeof schema>>({
     defaultValues: initialData ? { ...initialData} : {
@@ -64,6 +65,7 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
   const uploadFile = async (file: File) => {
     try {
       const response = await sdk.admin.upload.create({ files: [file] });
+      console.log("File uploaded successfully:", response);
       return response.files[0].url; // Returns the uploaded file's URL
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -76,6 +78,7 @@ const PdfForm = ({ product_id, initialData, isEditMode = false,cb }: PdfFormProp
       const url = isEditMode ? `/admin/extralinks` : "/admin/extralinks";
       const method = isEditMode ? "PUT" : "POST";
      
+      console.log('Data to be sent:', data);
       const response: any = await sdk.client.fetch(url, {
         method,
         body: data,

@@ -42,20 +42,26 @@ const ProductPdfWidget = ({
     queryKey: [["link",  product.id]],
   })
 
-  const pdfData = res as unknown as  productType
-
   
-// console.table(pdfData?.product.extra_link)
-const initialData = pdfData?.product.extra_link
-    ? {
-        amazoneLink: pdfData.product.extra_link.amazoneLink,
-        youtubeLink: pdfData.product.extra_link.youtubeLink,
-        previewPdf: pdfData.product.extra_link.previewPdf,
-        questionBankPdf: pdfData.product.extra_link.questionBankPdf,
-        anypdf: pdfData.product.extra_link.anypdf,
-        product_id:pdfData?.product.extra_link.id
-      }
-    : undefined
+  const pdfData = res as unknown as  productType
+console.log('producthaiye', pdfData?.product.extra_link)
+  
+console.table(pdfData?.product.extra_link)
+ const extraLink = Array.isArray(pdfData?.product?.extra_link)
+  ? pdfData.product.extra_link[0]
+  : pdfData?.product?.extra_link;
+
+const initialData = extraLink
+  ? {
+      amazoneLink: extraLink.amazoneLink,
+      youtubeLink: extraLink.youtubeLink,
+      previewPdf: extraLink.previewPdf,
+      questionBankPdf: extraLink.questionBankPdf,
+      anypdf: extraLink.anypdf,
+      product_id: extraLink.id,
+    }
+  : undefined;
+
   // to creat and add data in the form 
 
   return (
